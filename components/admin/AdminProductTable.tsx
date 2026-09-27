@@ -1,0 +1,94 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { formatPkr } from "@/lib/format";
+import type { Product } from "@/lib/types";
+
+export function AdminProductTable({ products }: { products: Product[] }) {
+  const router = useRouter();
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  async function toggleSold(product: Product) {
+    setBusyId(product.id);
+    await fetch(`/api/admin/products/${product.id}/sold`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ is_sold: !product.is_sold }),
+    });
+    setBusyId(null);
+    router.refresh();
+  }
+
+  async function deleteProduct(id: string, name: string) {
+    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+    setBusyId(id);
+    const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
+    setBusyId(null);
+    if (res.ok) router.refresh();
+    else alert("Delete failed");
+  }
+
+  if (!products.length) {
+    return <p className="text-zinc-500">No products yet. Add your first pair.</p>;
+  }
+
+  return (
+    <div className="overflow-x-auto rounded-xl border border-zinc-800">
+      <table className="min-w-full text-left text-sm">
+        <thead className="bg-[#141414] text-zinc-400">
+          <tr>
+            <th className="px-4 py-3 font-medium">Name</th>
+            <th className="px-4 py-3 font-medium">Brand</th>
+            <th className="px-4 py-3 font-medium">Price</th>
+            <th className="px-4 py-3 font-medium">Status</th>
+            <th className="px-4 py-3 font-medium">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-zinc-800">
+          {products.map((p) => (
+            <tr key={p.id} className="bg-[#0f0f0f]">
+              <td className="px-4 py-3 text-white">{p.name}</td>
+              <td className="px-4 py-3 text-zinc-300">{p.brand}</td>
+              <td className="px-4 py-3 text-[#FFD700]">{formatPkr(p.price_pkr)}</td>
+              <td className="px-4 py-3">
+                {p.is_sold ? (
+                  <span className="text-[#FF8C00] font-medium">Sold</span>
+                ) : (
+                  <span className="text-emerald-400">Available</span>
+                )}
+              </td>
+              <td className="px-4 py-3">
+                <div className="flex flex-wrap gap-2">
+                  <Link
+                    href={`/admin/products/${p.id}/edit`}
+                    className="rounded border border-zinc-600 px-2 py-1 text-xs hover:border-[#FF8C00]"
+                  >
+                    Edit
+                  </Link>
+                  <button
+                    type="button"
+                    disabled={busyId === p.id}
+                    onClick={() => toggleSold(p)}
+                    className="rounded border border-zinc-600 px-2 py-1 text-xs hover:border-[#FFD700] disabled:opacity-50"
+                  >
+                    {p.is_sold ? "Mark available" : "Mark sold"}
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busyId === p.id}
+                    onClick={() => deleteProduct(p.id, p.name)}
+                    className="rounded border border-red-900 px-2 py-1 text-xs text-red-400 hover:bg-red-950/50 disabled:opacity-50"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}

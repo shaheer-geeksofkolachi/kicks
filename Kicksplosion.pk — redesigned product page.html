@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kicksplosion.pk — Test product</title>
+<style>
+  :root{
+    --bg:#120e0c; --bg2:#181310; --card:#1e1712;
+    --border:#2c2119; --border-strong:#3d2b1c;
+    --text:#f3ece4; --text-dim:#a89a8c; --text-mute:#6f6154;
+    --orange:#ff7a1a; --orange-dark:#c94f00; --orange-tint:#3a2311;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple-system,sans-serif;
+       padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);}
+  header{display:flex;align-items:center;justify-content:space-between;padding:18px 40px;
+         border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(18,14,12,.9);backdrop-filter:blur(6px);z-index:5;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .logo{width:38px;height:38px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff9a3d,#c94f00 60%,#5c1f00);
+        display:flex;align-items:center;justify-content:center;font-size:18px;}
+  .brand h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.3px;}
+  .brand p{margin:0;font-size:10px;letter-spacing:2px;color:var(--orange);font-weight:600;}
+  nav a{color:var(--text-dim);text-decoration:none;font-size:13px;margin-left:22px;}
+
+  main{max-width:1120px;margin:0 auto;padding:32px 40px 100px;}
+  .crumb{font-size:13px;color:var(--text-dim);text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-bottom:22px;}
+  .crumb:hover{color:var(--orange);}
+
+  .layout{display:grid;grid-template-columns:1.15fr 1fr;gap:56px;}
+  @media(max-width:860px){.layout{grid-template-columns:1fr;}}
+
+  .hero{position:relative;border-radius:18px;overflow:hidden;aspect-ratio:1/1;
+        background:radial-gradient(ellipse at 60% 40%,#e8481f 0%,#a82f10 45%,#3a0f04 100%);
+        display:flex;align-items:center;justify-content:center;}
+  .hero .shoe{width:70%;font-size:120px;filter:drop-shadow(0 20px 30px rgba(0,0,0,.5));transform:rotate(-8deg);}
+  .badge-stock{position:absolute;top:16px;left:16px;background:var(--bg);border:1px solid var(--border-strong);
+        color:var(--orange);font-size:11px;font-weight:700;padding:6px 12px;border-radius:100px;letter-spacing:.5px;}
+  .fav{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,.35);
+        border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;}
+
+  .thumbs{display:flex;gap:12px;margin-top:14px;}
+  .thumb{flex:1;aspect-ratio:1/1;border-radius:10px;border:1px solid var(--border);
+        background:linear-gradient(135deg,#241a12,#171009);cursor:pointer;}
+  .thumb.active{border-color:var(--orange);}
+
+  .eyebrow{color:var(--orange);font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin:0 0 8px;display:flex;align-items:center;gap:8px;}
+  .badge-cat{background:var(--orange-tint);color:#ffb27a;padding:3px 10px;border-radius:100px;font-size:11px;letter-spacing:.5px;}
+  h2.title{font-size:34px;margin:0 0 10px;line-height:1.15;font-weight:800;letter-spacing:-.5px;}
+  .price-row{display:flex;align-items:baseline;gap:12px;margin-bottom:22px;}
+  .price{font-size:28px;font-weight:800;color:#fff;}
+  .price-old{font-size:16px;color:var(--text-mute);text-decoration:line-through;}
+  .price-off{font-size:12px;color:#7fd858;background:#14260d;padding:3px 8px;border-radius:6px;font-weight:700;}
+
+  .section-label{font-size:13px;color:var(--text-dim);margin:22px 0 10px;font-weight:600;}
+  .sizes{display:flex;gap:8px;flex-wrap:wrap;}
+  .size{width:52px;height:44px;border-radius:10px;border:1px solid var(--border);display:flex;align-items:center;
+        justify-content:center;font-size:13px;color:var(--text-mute);}
+  .size.avail{border-color:var(--border-strong);color:var(--text);cursor:pointer;}
+  .size.selected{border-color:var(--orange);background:var(--orange-tint);color:#ffb27a;font-weight:700;}
+  .size.out{position:relative;color:#4a4038;}
+  .size.out::after{content:'';position:absolute;left:6px;right:6px;top:50%;height:1px;background:#4a4038;}
+
+  .desc{font-size:14.5px;line-height:1.7;color:var(--text-dim);max-width:46ch;}
+
+  .cta-row{display:flex;gap:12px;margin-top:28px;}
+  .qty{display:flex;align-items:center;border:1px solid var(--border-strong);border-radius:10px;overflow:hidden;}
+  .qty button{background:none;border:none;color:var(--text);width:38px;height:48px;font-size:16px;cursor:pointer;}
+  .qty span{width:34px;text-align:center;font-size:14px;}
+  .buy{flex:1;background:var(--orange);color:#1c0a00;border:none;border-radius:10px;font-weight:800;
+       font-size:15px;letter-spacing:.3px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;}
+  .buy:hover{background:#ff8c3d;}
+
+  .trust{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:26px;padding-top:22px;border-top:1px solid var(--border);}
+  .trust div{font-size:12px;color:var(--text-dim);display:flex;flex-direction:column;gap:6px;align-items:flex-start;}
+  .trust .ic{font-size:17px;}
+
+  .sticky-bar{position:sticky;bottom:0;display:none;background:var(--bg2);border-top:1px solid var(--border);
+        padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));align-items:center;justify-content:space-between;gap:14px;}
+  @media(max-width:640px){main{padding:24px 18px 24px;}header{padding:14px 18px;}.sticky-bar{display:flex;}}
+  .sticky-bar .price{font-size:18px;}
+  .sticky-bar button{background:var(--orange);color:#1c0a00;border:none;border-radius:10px;padding:12px 22px;font-weight:800;font-size:14px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="logo">🔥</div>
+    <div><h1>Kicksplosion.pk</h1><p>FOOTWEAR IGNITED</p></div>
+  </div>
+  <nav><a href="#">Catalog</a><a href="#">Orders</a><a href="#">Admin</a></nav>
+</header>
+
+<main>
+  <a class="crumb" href="#">← Back to catalog</a>
+
+  <div class="layout">
+    <div>
+      <div class="hero">
+        <span class="badge-stock">Only 1 left</span>
+        <span class="fav">♡</span>
+        <div class="shoe">👟</div>
+      </div>
+      <div class="thumbs">
+        <div class="thumb active"></div>
+        <div class="thumb"></div>
+        <div class="thumb"></div>
+      </div>
+    </div>
+
+    <div>
+      <p class="eyebrow"><span class="badge-cat">Running</span></p>
+      <h2 class="title">Test product</h2>
+      <div class="price-row">
+        <span class="price">Rs. 1,000</span>
+        <span class="price-old">Rs. 1,400</span>
+        <span class="price-off">−29%</span>
+      </div>
+
+      <p class="section-label">Available sizes</p>
+      <div class="sizes">
+        <div class="size out">6</div>
+        <div class="size out">7</div>
+        <div class="size out">8</div>
+        <div class="size selected">9</div>
+        <div class="size out">10</div>
+        <div class="size out">11</div>
+      </div>
+
+      <p class="section-label">Description</p>
+      <p class="desc">test desc</p>
+
+      <div class="cta-row">
+        <div class="qty"><button>−</button><span>1</span><button>+</button></div>
+        <button class="buy">🛒 Add to cart</button>
+      </div>
+
+      <div class="trust">
+        <div><span class="ic">🚚</span>2–4 day delivery</div>
+        <div><span class="ic">💵</span>Cash on delivery</div>
+        <div><span class="ic">↩️</span>7-day returns</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="sticky-bar">
+  <span class="price">Rs. 1,000</span>
+  <button>Add to cart</button>
+</div>
+
+</body>
+</html>
