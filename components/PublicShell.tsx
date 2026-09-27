@@ -1,0 +1,22 @@
+import { ConnectPromoBanner } from "@/components/social/ConnectPromoBanner";
+import { SiteFooter } from "@/components/social/SiteFooter";
+import { StickyConnectBar } from "@/components/social/StickyConnectBar";
+import { SiteHeader } from "@/components/SiteHeader";
+
+type PublicShellProps = {
+  children: React.ReactNode;
+  /** Extra bottom padding so content isn’t hidden behind the sticky bar */
+  contentClassName?: string;
+};
+
+export function PublicShell({ children, contentClassName = "" }: PublicShellProps) {
+  return (
+    <div className="min-h-screen bg-[#120e0c] text-[#f3ece4]">
+      <SiteHeader />
+      <ConnectPromoBanner />
+      <div className={`pb-28 sm:pb-32 ${contentClassName}`}>{children}</div>
+      <SiteFooter />
+      <StickyConnectBar />
+    </div>
+  );
+}

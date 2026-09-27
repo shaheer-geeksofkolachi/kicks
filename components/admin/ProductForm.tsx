@@ -7,7 +7,8 @@ import { getStoragePublicUrl, sortMedia } from "@/lib/media";
 import type { Product } from "@/lib/types";
 import { BrandSelect } from "@/components/BrandSelect";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
-import { SIZE_UNITS, sizesToInputValue } from "@/lib/sizes";
+import { SizeMultiSelect } from "@/components/admin/SizeMultiSelect";
+import { SIZE_UNITS, sizesToSelectableValues } from "@/lib/sizes";
 
 type ProductFormProps = {
   product?: Product;
@@ -24,10 +25,9 @@ export function ProductForm({ product }: ProductFormProps) {
   const sizeUnit = product?.size_unit && SIZE_UNITS.includes(product.size_unit as (typeof SIZE_UNITS)[number])
     ? product.size_unit
     : "UK";
-  const sizesDefault =
-    product?.sizes?.length
-      ? sizesToInputValue(product.sizes, sizeUnit)
-      : "";
+  const [selectedSizes, setSelectedSizes] = useState<string[]>(() =>
+    product?.sizes?.length ? sizesToSelectableValues(product.sizes, sizeUnit) : [],
+  );
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -109,12 +109,11 @@ export function ProductForm({ product }: ProductFormProps) {
           ))}
         </select>
       </div>
-      <Field
-        label="Sizes (comma-separated numbers)"
-        name="sizes"
-        placeholder="8, 9, 10, 11"
-        defaultValue={sizesDefault}
-      />
+      <div>
+        <label className="mb-1 block text-sm text-zinc-400">Sizes</label>
+        <SizeMultiSelect name="sizes" value={selectedSizes} onChange={setSelectedSizes} required />
+        <p className="mt-1 text-xs text-zinc-500">Choose one or more sizes from 37 to 48.</p>
+      </div>
 
       <label className="flex items-center gap-2 text-sm text-zinc-300">
         <input

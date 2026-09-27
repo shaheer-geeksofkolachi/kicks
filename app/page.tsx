@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { CatalogClient } from "@/components/CatalogClient";
-import { SiteHeader } from "@/components/SiteHeader";
+import { PublicShell } from "@/components/PublicShell";
 import { fetchProducts } from "@/lib/products";
 
 function isSupabaseConfigured() {
@@ -12,11 +12,10 @@ export default async function HomePage() {
   const products = configError ? [] : await fetchProducts();
 
   return (
-    <div className="min-h-screen bg-[#120e0c] text-[#f3ece4]">
-      <SiteHeader />
+    <PublicShell>
       <Suspense fallback={null}>
         <CatalogClient products={products} configError={configError} />
       </Suspense>
-    </div>
+    </PublicShell>
   );
 }

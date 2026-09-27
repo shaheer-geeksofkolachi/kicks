@@ -67,7 +67,7 @@ export function CatalogClient({ products, configError }: CatalogClientProps) {
         className="pointer-events-none absolute inset-x-0 top-0 h-64 bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(255,122,26,0.12),transparent)]"
       />
 
-      <div className="relative mx-auto max-w-[1120px] px-[18px] pb-16 pt-8 sm:px-10 sm:pt-10">
+      <div className="relative mx-auto max-w-[1120px] px-[18px] pt-8 sm:px-10 sm:pt-10">
         <header className="mb-8 sm:mb-10">
           <p className="text-xs font-semibold tracking-[0.2em] text-[#ff7a1a] uppercase">Kicksplosion.pk</p>
           <h1 className="mt-2 font-display text-4xl leading-tight tracking-tight text-[#f3ece4] sm:text-5xl">

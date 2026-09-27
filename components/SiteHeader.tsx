@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ConnectLinks } from "@/components/social/ConnectLinks";
 
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-[#2c2119] bg-[#120e0c]/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-[1120px] items-center justify-between gap-4 px-[18px] py-3.5 sm:px-10 sm:py-[18px]">
-        <Link href="/" className="brand flex items-center gap-3">
+      <div className="mx-auto flex max-w-[1120px] flex-wrap items-center justify-between gap-3 px-[18px] py-3.5 sm:gap-4 sm:px-10 sm:py-[18px]">
+        <Link href="/" className="brand flex min-w-0 items-center gap-3">
           <Image
             src="/logo.png"
             alt="Kicksplosion.pk"
@@ -23,20 +24,17 @@ export function SiteHeader() {
             </p>
           </div>
         </Link>
-        <nav className="flex items-center gap-5 sm:gap-[22px]">
-          <Link
-            href="/"
-            className="text-[13px] text-[#a89a8c] transition hover:text-[#ff7a1a]"
-          >
-            Catalog
-          </Link>
-          <Link
-            href="/admin/login"
-            className="text-[13px] text-[#a89a8c] transition hover:text-[#ff7a1a]"
-          >
-            Admin
-          </Link>
-        </nav>
+        <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-4">
+          <ConnectLinks variant="header" />
+          <nav className="flex items-center gap-4 border-l border-[#2c2119] pl-3 sm:gap-5 sm:pl-4">
+            <Link href="/" className="text-[13px] text-[#a89a8c] transition hover:text-[#ff7a1a]">
+              Catalog
+            </Link>
+            <Link href="/admin/login" className="text-[13px] text-[#a89a8c] transition hover:text-[#ff7a1a]">
+              Admin
+            </Link>
+          </nav>
+        </div>
       </div>
     </header>
   );

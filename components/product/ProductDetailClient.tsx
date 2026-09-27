@@ -159,8 +159,11 @@ export function ProductDetailClient({ product, pageUrl }: ProductDetailClientPro
       </div>
 
       <div
-        className="fixed right-0 bottom-0 left-0 z-30 flex items-center justify-between gap-3.5 border-t border-[#2c2119] bg-[#181310] px-4 py-3 sm:hidden"
-        style={{ paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))" }}
+        className="fixed right-0 left-0 z-40 flex items-center justify-between gap-3.5 border-t border-[#2c2119] bg-[#181310] px-4 py-3 sm:hidden"
+        style={{
+          bottom: "calc(5.75rem + env(safe-area-inset-bottom, 0px))",
+          paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))",
+        }}
       >
         <span className="text-lg font-extrabold text-white">{formatPkr(product.price_pkr)}</span>
         <button

@@ -1,5 +1,8 @@
 export const SIZE_UNITS = ["UK", "US", "EU"] as const;
 
+/** Standard admin catalog sizes (EU-style numeric range). */
+export const STANDARD_SHOE_SIZES = Array.from({ length: 12 }, (_, i) => String(37 + i));
+
 export type SizeUnit = (typeof SIZE_UNITS)[number];
 
 export function isSizeUnit(value: string): value is SizeUnit {
@@ -19,4 +22,13 @@ export function formatSizeLabel(unit: string, size: string): string {
 export function sizesToInputValue(sizes: string[], unit: string): string {
   const prefix = new RegExp(`^${unit}\\s*`, "i");
   return sizes.map((s) => s.replace(prefix, "").trim()).join(", ");
+}
+
+/** Numeric size values for admin multi-select (strips stored unit prefix). */
+export function sizesToSelectableValues(sizes: string[], unit: string): string[] {
+  const prefix = new RegExp(`^${unit}\\s*`, "i");
+  return sizes
+    .map((s) => s.replace(prefix, "").trim())
+    .filter(Boolean)
+    .sort((a, b) => Number(a) - Number(b));
 }
