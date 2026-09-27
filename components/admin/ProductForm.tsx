@@ -6,6 +6,7 @@ import { useState } from "react";
 import { getStoragePublicUrl, sortMedia } from "@/lib/media";
 import type { Product } from "@/lib/types";
 import { BrandSelect } from "@/components/BrandSelect";
+import { MediaUploadField } from "@/components/admin/MediaUploadField";
 import { SIZE_UNITS, sizesToInputValue } from "@/lib/sizes";
 
 type ProductFormProps = {
@@ -18,6 +19,7 @@ export function ProductForm({ product }: ProductFormProps) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [removeIds, setRemoveIds] = useState<string[]>([]);
+  const [newMediaFiles, setNewMediaFiles] = useState<File[]>([]);
   const existingMedia = product?.product_media ? sortMedia(product.product_media) : [];
   const sizeUnit = product?.size_unit && SIZE_UNITS.includes(product.size_unit as (typeof SIZE_UNITS)[number])
     ? product.size_unit
@@ -37,6 +39,9 @@ export function ProductForm({ product }: ProductFormProps) {
     data.set("is_sold", isSoldEl?.checked ? "true" : "false");
     if (isEdit) {
       data.set("remove_media_ids", removeIds.join(","));
+    }
+    for (const file of newMediaFiles) {
+      data.append("media", file);
     }
 
     const url = isEdit ? `/api/admin/products/${product!.id}` : "/api/admin/products";
@@ -155,14 +160,8 @@ export function ProductForm({ product }: ProductFormProps) {
       )}
 
       <div>
-        <label className="mb-1 block text-sm text-zinc-400">Add images / videos</label>
-        <input
-          type="file"
-          name="media"
-          accept="image/*,video/*"
-          multiple
-          className="block w-full text-sm text-zinc-400 file:mr-4 file:rounded file:border-0 file:bg-[#FF8C00] file:px-4 file:py-2 file:text-sm file:font-medium file:text-black"
-        />
+        <label className="mb-1 block text-sm text-zinc-400">Images / videos</label>
+        <MediaUploadField files={newMediaFiles} onChange={setNewMediaFiles} />
       </div>
 
       <div className="flex gap-3 pt-2">
