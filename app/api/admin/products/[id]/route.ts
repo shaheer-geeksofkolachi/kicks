@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { deleteMediaByIds, deleteProductAndMedia, uploadProductFiles } from "@/lib/admin-products";
+import { isAllowedBrand } from "@/lib/brands";
 import { parseSizesInput } from "@/lib/format";
 import { isSizeUnit } from "@/lib/sizes";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -35,6 +36,11 @@ export async function PATCH(request: Request, context: RouteContext) {
   }
 
   const supabase = createAdminClient();
+
+  const { data: existing } = await supabase.from("products").select("brand").eq("id", id).single();
+  if (!isAllowedBrand(brand, existing?.brand ? [existing.brand] : [])) {
+    return NextResponse.json({ error: "Please select a valid brand" }, { status: 400 });
+  }
 
   const { error } = await supabase
     .from("products")

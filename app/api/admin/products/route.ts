@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { uploadProductFiles } from "@/lib/admin-products";
+import { isAllowedBrand } from "@/lib/brands";
 import { parseSizesInput } from "@/lib/format";
 import { isSizeUnit } from "@/lib/sizes";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -48,6 +49,9 @@ export async function POST(request: Request) {
 
   if (!name || !brand || !Number.isFinite(priceRaw) || priceRaw < 0) {
     return NextResponse.json({ error: "Name, brand, and valid price are required" }, { status: 400 });
+  }
+  if (!isAllowedBrand(brand)) {
+    return NextResponse.json({ error: "Please select a valid brand" }, { status: 400 });
   }
 
   const supabase = createAdminClient();

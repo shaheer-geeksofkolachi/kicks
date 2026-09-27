@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getStoragePublicUrl, sortMedia } from "@/lib/media";
 import type { Product } from "@/lib/types";
+import { BrandSelect } from "@/components/BrandSelect";
 import { SIZE_UNITS, sizesToInputValue } from "@/lib/sizes";
 
 type ProductFormProps = {
@@ -63,7 +64,15 @@ export function ProductForm({ product }: ProductFormProps) {
       )}
 
       <Field label="Name" name="name" required defaultValue={product?.name} />
-      <Field label="Brand" name="brand" required defaultValue={product?.brand} />
+      <div>
+        <label className="mb-1 block text-sm text-zinc-400">Brand</label>
+        <BrandSelect
+          name="brand"
+          required
+          defaultValue={product?.brand ?? ""}
+          extraBrands={product?.brand ? [product.brand] : []}
+        />
+      </div>
       <Field
         label="Price (PKR)"
         name="price_pkr"

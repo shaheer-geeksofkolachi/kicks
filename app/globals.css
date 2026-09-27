@@ -25,3 +25,29 @@ body {
 .font-display {
   font-family: var(--font-oswald), var(--font-inter), sans-serif;
 }
+
+.brand-dropdown-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #3d3028 transparent;
+}
+
+.brand-dropdown-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.brand-dropdown-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.brand-dropdown-scroll::-webkit-scrollbar-thumb {
+  background: #3d3028;
+  border-radius: 999px;
+}
+
+.brand-dropdown-scroll::-webkit-scrollbar-thumb:hover {
+  background: #ff7a1a66;
+}
+
+.brand-dropdown-search::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
