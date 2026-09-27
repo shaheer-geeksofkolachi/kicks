@@ -2,17 +2,11 @@ import type { ProductMedia } from "@/lib/types";
 
 /** S3 object key stored in `product_media.storage_path` */
 export function getStoragePublicUrl(storagePath: string): string {
-  const customBase = process.env.NEXT_PUBLIC_S3_PUBLIC_URL_BASE;
-  if (customBase) {
-    return `${customBase.replace(/\/$/, "")}/${storagePath.split("/").map(encodeURIComponent).join("/")}`;
-  }
-
-  const bucket = process.env.NEXT_PUBLIC_AWS_S3_BUCKET;
-  const region = process.env.NEXT_PUBLIC_AWS_REGION;
-  if (!bucket || !region) return "";
+  const base = process.env.NEXT_PUBLIC_S3_PUBLIC_URL_BASE?.trim();
+  if (!base) return "";
 
   const encodedKey = storagePath.split("/").map(encodeURIComponent).join("/");
-  return `https://${bucket}.s3.${region}.amazonaws.com/${encodedKey}`;
+  return `${base.replace(/\/$/, "")}/${encodedKey}`;
 }
 
 export function sortMedia(media: ProductMedia[]): ProductMedia[] {

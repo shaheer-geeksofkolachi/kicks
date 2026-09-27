@@ -24,7 +24,7 @@ Next.js catalog for **Kicksplosion.pk** — public shoe catalog with filters, me
 3. **Public read** for catalog URLs — either:
    - Bucket policy allowing `s3:GetObject` for `arn:aws:s3:::your-bucket/products/*` with `"Principal": "*"`, or
    - Objects uploaded with public-read ACL (not recommended for all use cases).
-4. Set **`AWS_REGION`** and **`NEXT_PUBLIC_AWS_REGION`** to the bucket’s region (e.g. `ap-south-1`).
+4. Set **`AWS_REGION`** to the bucket’s region (e.g. `eu-north-1`). Public image URLs are built from **`AWS_S3_BUCKET`** + **`AWS_REGION`** at deploy time — you do **not** need `NEXT_PUBLIC_AWS_REGION`.
 
 ### 3. Local environment
 
@@ -37,10 +37,10 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Publishable key |
 | `SUPABASE_SERVICE_ROLE_KEY` | Secret key — server only |
-| `AWS_REGION` | S3 bucket region |
+| `AWS_REGION` | S3 bucket region (required for uploads and catalog image URLs) |
 | `AWS_S3_BUCKET` | Bucket name |
 | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | IAM credentials — server only |
-| `NEXT_PUBLIC_AWS_S3_BUCKET` / `NEXT_PUBLIC_AWS_REGION` | Build public media URLs in the browser |
+| `NEXT_PUBLIC_S3_PUBLIC_URL_BASE` | Optional; override public media URL base (default: derived from bucket + region at build) |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | WhatsApp for “Order on WhatsApp” (e.g. `923001234567`) |
 | `NEXT_PUBLIC_SITE_URL` | Optional; product link in WhatsApp messages on production |
 | `ADMIN_USERNAME` / `ADMIN_PASSWORD` | Admin login |
