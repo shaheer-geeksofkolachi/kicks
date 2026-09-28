@@ -27,7 +27,7 @@ export function SiteHeader() {
         <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-4">
           <ConnectLinks variant="header" />
           <nav className="flex items-center gap-4 border-l border-[#2c2119] pl-3 sm:gap-5 sm:pl-4">
-            <Link href="/" className="text-[13px] text-[#a89a8c] transition hover:text-[#ff7a1a]">
+            <Link href="/catalog" className="text-[13px] text-[#a89a8c] transition hover:text-[#ff7a1a]">
               Catalog
             </Link>
             <Link href="/admin/login" className="text-[13px] text-[#a89a8c] transition hover:text-[#ff7a1a]">

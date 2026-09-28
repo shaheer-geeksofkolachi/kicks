@@ -18,7 +18,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
     <PublicShell>
       <main className="product-page mx-auto max-w-[1120px] px-[18px] py-6 sm:px-10 sm:py-8">
         <Link
-          href="/"
+          href="/catalog"
           className="mb-5 inline-flex items-center gap-1.5 text-[13px] text-[#a89a8c] transition hover:text-[#ff7a1a]"
         >
           ← Back to catalog

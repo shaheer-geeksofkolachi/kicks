@@ -67,7 +67,7 @@ export function HeroBanner() {
   return (
     <section className="w-full border-b border-[#2c2119] bg-[#14110f]" aria-label="Kicksplosion.pk hero">
       <Link
-        href="/#catalog"
+        href="/catalog"
         className="group relative mx-auto block w-full max-w-[2400px] overflow-hidden transition hover:brightness-[1.03]"
         style={{ aspectRatio: String(BANNER_ASPECT) }}
       >

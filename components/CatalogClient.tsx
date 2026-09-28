@@ -5,23 +5,33 @@ import { useSearchParams } from "next/navigation";
 import { CatalogFilters } from "@/components/CatalogFilters";
 import { LoadingSplash } from "@/components/LoadingSplash";
 import { ProductCard } from "@/components/ProductCard";
-import { ReviewsCarousel } from "@/components/ReviewsCarousel";
+import { filterDiscountedProducts } from "@/lib/catalog-helpers";
 import type { Product } from "@/lib/types";
 import { productIncludesSize } from "@/lib/sizes";
 
 const MIN_SPLASH_MS = 800;
 
+type CatalogMode = "all" | "deals";
+
 type CatalogClientProps = {
   products: Product[];
   configError?: boolean;
+  mode?: CatalogMode;
 };
 
-export function CatalogClient({ products, configError }: CatalogClientProps) {
+const CATALOG_BASE = "/catalog";
+
+export function CatalogClient({ products, configError, mode = "all" }: CatalogClientProps) {
   const searchParams = useSearchParams();
   const [ready, setReady] = useState(false);
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [brand, setBrand] = useState(searchParams.get("brand") ?? "");
   const [size, setSize] = useState(searchParams.get("size") ?? "");
+
+  const catalogProducts = useMemo(
+    () => (mode === "deals" ? filterDiscountedProducts(products) : products),
+    [products, mode],
+  );
 
   useEffect(() => {
     const start = Date.now();
@@ -34,27 +44,32 @@ export function CatalogClient({ products, configError }: CatalogClientProps) {
   }, []);
 
   useEffect(() => {
+    if (mode !== "all") return;
     const params = new URLSearchParams();
     if (query) params.set("q", query);
     if (brand) params.set("brand", brand);
     if (size) params.set("size", size);
     const qs = params.toString();
-    const url = qs ? `?${qs}` : "/";
+    const url = qs ? `${CATALOG_BASE}?${qs}` : CATALOG_BASE;
     window.history.replaceState(null, "", url);
-  }, [query, brand, size]);
+  }, [query, brand, size, mode]);
 
   const filtered = useMemo(() => {
+    if (mode === "deals") return catalogProducts;
     const q = query.trim().toLowerCase();
-    return products.filter((p) => {
+    return catalogProducts.filter((p) => {
       const matchesBrand = !brand || p.brand === brand;
       const matchesSize = productIncludesSize(p.sizes, p.size_unit, size);
       const matchesQuery = !q || p.name.toLowerCase().includes(q);
       return matchesBrand && matchesSize && matchesQuery;
     });
-  }, [products, query, brand, size]);
+  }, [catalogProducts, query, brand, size, mode]);
 
   const hasActiveFilters = Boolean(query.trim() || brand || size);
-  const availableCount = useMemo(() => products.filter((p) => !p.is_sold).length, [products]);
+  const availableCount = useMemo(
+    () => catalogProducts.filter((p) => !p.is_sold).length,
+    [catalogProducts],
+  );
 
   function clearFilters() {
     setQuery("");
@@ -66,6 +81,14 @@ export function CatalogClient({ products, configError }: CatalogClientProps) {
     return <LoadingSplash />;
   }
 
+  const isDeals = mode === "deals";
+  const title = isDeals ? "Deals & discounts" : "Shop catalog";
+  const subtitle = isDeals
+    ? catalogProducts.length > 0
+      ? `${catalogProducts.length} ${catalogProducts.length === 1 ? "pair" : "pairs"} on sale right now.`
+      : "No active discounts at the moment — check the full catalog."
+    : "Premium kicks — filter by brand, size, or search by name. Fresh pairs added regularly.";
+
   return (
     <div className="relative">
       <div
@@ -74,21 +97,20 @@ export function CatalogClient({ products, configError }: CatalogClientProps) {
       />
 
       <div className="relative mx-auto max-w-[1120px] px-[18px] pt-8 sm:px-10 sm:pt-10">
-        <header id="catalog" className="mb-8 scroll-mt-24 sm:mb-10">
+        <header className="mb-8 scroll-mt-24 sm:mb-10">
           <p className="text-xs font-semibold tracking-[0.2em] text-[#ff7a1a] uppercase">Kicksplosion.pk</p>
           <h1 className="mt-2 font-display text-4xl leading-tight tracking-tight text-[#f3ece4] sm:text-5xl">
-            Our Catalog
+            {title}
           </h1>
-          <p className="mt-3 max-w-xl text-base text-[#a89a8c]">
-            Premium kicks — filter by brand, size, or search by name. Fresh pairs added regularly.
-          </p>
+          <p className="mt-3 max-w-xl text-base text-[#a89a8c]">{subtitle}</p>
 
-          {!configError && products.length > 0 && (
+          {!configError && catalogProducts.length > 0 && (
             <div className="mt-5 flex flex-wrap gap-2">
               <span className="rounded-full border border-[#2c2119] bg-[#1a1410]/90 px-3 py-1 text-xs font-medium text-[#c4b5a6]">
-                {products.length} {products.length === 1 ? "pair" : "pairs"} listed
+                {catalogProducts.length} {catalogProducts.length === 1 ? "pair" : "pairs"}{" "}
+                {isDeals ? "on sale" : "listed"}
               </span>
-              {availableCount < products.length && (
+              {availableCount < catalogProducts.length && (
                 <span className="rounded-full border border-[#2c2119] bg-[#1a1410]/90 px-3 py-1 text-xs font-medium text-[#6b5d52]">
                   {availableCount} available now
                 </span>
@@ -103,25 +125,27 @@ export function CatalogClient({ products, configError }: CatalogClientProps) {
           </div>
         )}
 
-        <div className="sticky top-[65px] z-30 mb-8">
-          <CatalogFilters
-            query={query}
-            brand={brand}
-            size={size}
-            onQueryChange={setQuery}
-            onBrandChange={setBrand}
-            onSizeChange={setSize}
-            onClear={clearFilters}
-            hasActiveFilters={hasActiveFilters}
-          />
-        </div>
+        {mode === "all" && (
+          <div className="sticky top-[65px] z-30 mb-8">
+            <CatalogFilters
+              query={query}
+              brand={brand}
+              size={size}
+              onQueryChange={setQuery}
+              onBrandChange={setBrand}
+              onSizeChange={setSize}
+              onClear={clearFilters}
+              hasActiveFilters={hasActiveFilters}
+            />
+          </div>
+        )}
 
         <div className="mb-5 flex items-center justify-between gap-4">
           <p className="text-sm text-[#6b5d52]">
-            {hasActiveFilters ? (
+            {mode === "all" && hasActiveFilters ? (
               <>
                 Showing <span className="font-medium text-[#c4b5a6]">{filtered.length}</span> of{" "}
-                {products.length}
+                {catalogProducts.length}
               </>
             ) : (
               <>
@@ -134,11 +158,15 @@ export function CatalogClient({ products, configError }: CatalogClientProps) {
 
         {filtered.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[#2c2119] bg-[#1a1410]/40 px-6 py-16 text-center">
-            <p className="font-display text-xl text-[#f3ece4]">No matches</p>
-            <p className="mt-2 text-sm text-[#6b5d52]">
-              Try another brand, size, or search term — or clear your filters.
+            <p className="font-display text-xl text-[#f3ece4]">
+              {isDeals ? "No deals right now" : "No matches"}
             </p>
-            {hasActiveFilters && (
+            <p className="mt-2 text-sm text-[#6b5d52]">
+              {isDeals
+                ? "Browse the full catalog for every pair we have listed."
+                : "Try another brand, size, or search term — or clear your filters."}
+            </p>
+            {hasActiveFilters && mode === "all" && (
               <button
                 type="button"
                 onClick={clearFilters}
@@ -149,14 +177,12 @@ export function CatalogClient({ products, configError }: CatalogClientProps) {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 pb-12 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
             {filtered.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         )}
-
-        <ReviewsCarousel />
       </div>
     </div>
   );

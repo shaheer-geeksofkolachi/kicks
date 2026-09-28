@@ -1,34 +1,40 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 
 type MediaUploadFieldProps = {
   files: File[];
   onChange: (files: File[]) => void;
 };
 
+const IMAGE_EXT = /\.(jpe?g|png|gif|webp|bmp|svg|heic|heif|avif)$/i;
+
 function isImage(file: File) {
-  return file.type.startsWith("image/");
+  if (file.type.startsWith("image/")) return true;
+  return IMAGE_EXT.test(file.name);
 }
 
 function isVideo(file: File) {
-  return file.type.startsWith("video/");
+  if (file.type.startsWith("video/")) return true;
+  return /\.(mp4|webm|mov|m4v|ogg)$/i.test(file.name);
 }
 
-function PendingImagePreview({ file }: { file: File }) {
-  const src = useMemo(() => URL.createObjectURL(file), [file]);
-
-  useEffect(() => () => URL.revokeObjectURL(src), [src]);
-
-  return (
-    // eslint-disable-next-line @next/next/no-img-element -- local blob preview
-    <img src={src} alt="" className="h-full w-full object-cover" />
-  );
+function fileKey(file: File, index: number) {
+  return `${file.name}-${file.size}-${file.lastModified}-${index}`;
 }
 
 export function MediaUploadField({ files, onChange }: MediaUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+
+  useLayoutEffect(() => {
+    const urls = files.map((file) => URL.createObjectURL(file));
+    setPreviewUrls(urls);
+    return () => {
+      urls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [files]);
 
   function addFiles(incoming: FileList | File[]) {
     const list = Array.from(incoming).filter((f) => f.size > 0 && (isImage(f) || isVideo(f)));
@@ -99,27 +105,49 @@ export function MediaUploadField({ files, onChange }: MediaUploadFieldProps) {
             {files.length} file{files.length === 1 ? "" : "s"} ready to upload
           </p>
           <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-            {files.map((file, index) => (
-              <li key={`${file.name}-${file.size}-${index}`} className="relative aspect-square overflow-hidden rounded-lg border border-zinc-700 bg-zinc-900">
-                {isImage(file) ? (
-                  <PendingImagePreview file={file} />
-                ) : (
-                  <div className="flex h-full items-center justify-center p-2 text-center text-[10px] text-zinc-400">
-                    Video
-                    <br />
-                    {file.name}
-                  </div>
-                )}
-                <button
-                  type="button"
-                  onClick={() => removeAt(index)}
-                  className="absolute top-1 right-1 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-red-300 hover:bg-black"
-                  aria-label={`Remove ${file.name}`}
+            {files.map((file, index) => {
+              const src = previewUrls[index];
+              const showImage = isImage(file) && src;
+              const showVideo = isVideo(file) && src;
+
+              return (
+                <li
+                  key={fileKey(file, index)}
+                  className="relative aspect-square overflow-hidden rounded-lg border border-zinc-700 bg-zinc-900"
                 >
-                  Remove
-                </button>
-              </li>
-            ))}
+                  {showImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- local blob preview
+                    <img
+                      src={src}
+                      alt={file.name}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  ) : showVideo ? (
+                    <video
+                      src={src}
+                      className="absolute inset-0 h-full w-full object-cover"
+                      muted
+                      playsInline
+                      preload="metadata"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center p-2 text-center text-[10px] text-zinc-400">
+                      {isVideo(file) ? "Video" : "Image"}
+                      <br />
+                      <span className="line-clamp-2">{file.name}</span>
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeAt(index)}
+                    className="absolute top-1 right-1 z-10 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-medium text-red-300 hover:bg-black"
+                    aria-label={`Remove ${file.name}`}
+                  >
+                    Remove
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

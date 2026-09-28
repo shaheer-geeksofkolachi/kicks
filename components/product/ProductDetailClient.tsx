@@ -72,7 +72,7 @@ export function ProductDetailClient({ product, pageUrl }: ProductDetailClientPro
           </h1>
 
           <div className="mb-5">
-            <ProductPrice product={product} size="lg" />
+            <ProductPrice product={product} size="lg" variant="card" />
           </div>
 
           {product.is_sold && (
