@@ -6,11 +6,14 @@ import { formatPkr } from "@/lib/format";
 import { primaryImageUrl } from "@/lib/media";
 import type { Product } from "@/lib/types";
 import { LoadingSplash } from "@/components/LoadingSplash";
+import { sizesToSelectableValues } from "@/lib/sizes";
 import { SoldOverlay } from "@/components/SoldOverlay";
 
 function ProductCardContent({ product }: { product: Product }) {
   const { pending } = useLinkStatus();
   const imageUrl = primaryImageUrl(product.product_media);
+  const sizeValues = sizesToSelectableValues(product.sizes ?? [], product.size_unit ?? "UK");
+  const sizeUnit = product.size_unit ?? "UK";
 
   return (
     <>
@@ -49,6 +52,23 @@ function ProductCardContent({ product }: { product: Product }) {
           <h2 className="line-clamp-2 font-display text-base leading-snug text-[#f3ece4] sm:text-lg">
             {product.name}
           </h2>
+          {sizeValues.length > 0 && (
+            <div className="mt-1.5">
+              <p className="mb-1 text-[9px] font-semibold tracking-wide text-[#6b5d52] uppercase sm:text-[10px]">
+                Sizes ({sizeUnit})
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {sizeValues.map((size) => (
+                  <span
+                    key={size}
+                    className="inline-flex min-w-[1.75rem] items-center justify-center rounded-md border border-[#2c2119] bg-[#120e0c] px-1.5 py-0.5 text-[10px] font-semibold text-[#c4b5a6] sm:text-[11px]"
+                  >
+                    {size}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
           <p className="mt-auto pt-2 text-sm font-bold text-[#ffd700]">{formatPkr(product.price_pkr)}</p>
         </div>
       </div>
