@@ -32,3 +32,14 @@ export function sizesToSelectableValues(sizes: string[], unit: string): string[]
     .filter(Boolean)
     .sort((a, b) => Number(a) - Number(b));
 }
+
+/** True if product lists the given numeric size (e.g. "42"). */
+export function productIncludesSize(
+  sizes: string[],
+  sizeUnit: string | null | undefined,
+  filterSize: string,
+): boolean {
+  if (!filterSize) return true;
+  const normalized = sizesToSelectableValues(sizes ?? [], sizeUnit ?? "UK");
+  return normalized.includes(filterSize);
+}

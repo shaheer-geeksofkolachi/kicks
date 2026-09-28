@@ -1,12 +1,15 @@
 "use client";
 
 import { BrandDropdown } from "@/components/BrandDropdown";
+import { SizeFilterDropdown } from "@/components/SizeFilterDropdown";
 
 type CatalogFiltersProps = {
   query: string;
   brand: string;
+  size: string;
   onQueryChange: (value: string) => void;
   onBrandChange: (value: string) => void;
+  onSizeChange: (value: string) => void;
   onClear: () => void;
   hasActiveFilters: boolean;
 };
@@ -26,14 +29,16 @@ function SearchIcon() {
 export function CatalogFilters({
   query,
   brand,
+  size,
   onQueryChange,
   onBrandChange,
+  onSizeChange,
   onClear,
   hasActiveFilters,
 }: CatalogFiltersProps) {
   return (
     <div className="rounded-2xl border border-[#2c2119] bg-[#1a1410]/80 p-4 shadow-[inset_0_1px_0_rgba(255,122,26,0.06)] backdrop-blur-sm sm:p-5">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
+      <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-end">
         <label className="flex-1">
           <span className="mb-1.5 block text-xs font-semibold tracking-wide text-[#a89a8c] uppercase">
             Search
@@ -52,7 +57,7 @@ export function CatalogFilters({
           </div>
         </label>
 
-        <div className="w-full lg:w-64">
+        <div className="w-full sm:w-[calc(50%-0.5rem)] lg:w-52">
           <span className="mb-1.5 block text-xs font-semibold tracking-wide text-[#a89a8c] uppercase">
             Brand
           </span>
@@ -62,6 +67,13 @@ export function CatalogFilters({
             includeAllOption
             extraBrands={brand ? [brand] : []}
           />
+        </div>
+
+        <div className="w-full sm:w-[calc(50%-0.5rem)] lg:w-44">
+          <span className="mb-1.5 block text-xs font-semibold tracking-wide text-[#a89a8c] uppercase">
+            Size
+          </span>
+          <SizeFilterDropdown value={size} onChange={onSizeChange} />
         </div>
 
         {hasActiveFilters && (

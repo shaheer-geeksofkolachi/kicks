@@ -6,6 +6,7 @@ import { CatalogFilters } from "@/components/CatalogFilters";
 import { LoadingSplash } from "@/components/LoadingSplash";
 import { ProductCard } from "@/components/ProductCard";
 import type { Product } from "@/lib/types";
+import { productIncludesSize } from "@/lib/sizes";
 
 const MIN_SPLASH_MS = 800;
 
@@ -19,6 +20,7 @@ export function CatalogClient({ products, configError }: CatalogClientProps) {
   const [ready, setReady] = useState(false);
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [brand, setBrand] = useState(searchParams.get("brand") ?? "");
+  const [size, setSize] = useState(searchParams.get("size") ?? "");
 
   useEffect(() => {
     const start = Date.now();
@@ -34,26 +36,29 @@ export function CatalogClient({ products, configError }: CatalogClientProps) {
     const params = new URLSearchParams();
     if (query) params.set("q", query);
     if (brand) params.set("brand", brand);
+    if (size) params.set("size", size);
     const qs = params.toString();
     const url = qs ? `?${qs}` : "/";
     window.history.replaceState(null, "", url);
-  }, [query, brand]);
+  }, [query, brand, size]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return products.filter((p) => {
       const matchesBrand = !brand || p.brand === brand;
+      const matchesSize = productIncludesSize(p.sizes, p.size_unit, size);
       const matchesQuery = !q || p.name.toLowerCase().includes(q);
-      return matchesBrand && matchesQuery;
+      return matchesBrand && matchesSize && matchesQuery;
     });
-  }, [products, query, brand]);
+  }, [products, query, brand, size]);
 
-  const hasActiveFilters = Boolean(query.trim() || brand);
+  const hasActiveFilters = Boolean(query.trim() || brand || size);
   const availableCount = useMemo(() => products.filter((p) => !p.is_sold).length, [products]);
 
   function clearFilters() {
     setQuery("");
     setBrand("");
+    setSize("");
   }
 
   if (!ready) {
@@ -74,7 +79,7 @@ export function CatalogClient({ products, configError }: CatalogClientProps) {
             Our Catalog
           </h1>
           <p className="mt-3 max-w-xl text-base text-[#a89a8c]">
-            Premium kicks — browse by brand or search by name. Fresh pairs added regularly.
+            Premium kicks — filter by brand, size, or search by name. Fresh pairs added regularly.
           </p>
 
           {!configError && products.length > 0 && (
@@ -101,8 +106,10 @@ export function CatalogClient({ products, configError }: CatalogClientProps) {
           <CatalogFilters
             query={query}
             brand={brand}
+            size={size}
             onQueryChange={setQuery}
             onBrandChange={setBrand}
+            onSizeChange={setSize}
             onClear={clearFilters}
             hasActiveFilters={hasActiveFilters}
           />
@@ -128,7 +135,7 @@ export function CatalogClient({ products, configError }: CatalogClientProps) {
           <div className="rounded-2xl border border-dashed border-[#2c2119] bg-[#1a1410]/40 px-6 py-16 text-center">
             <p className="font-display text-xl text-[#f3ece4]">No matches</p>
             <p className="mt-2 text-sm text-[#6b5d52]">
-              Try another brand or search term — or clear your filters.
+              Try another brand, size, or search term — or clear your filters.
             </p>
             {hasActiveFilters && (
               <button
