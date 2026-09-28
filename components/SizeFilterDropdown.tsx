@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { STANDARD_SHOE_SIZES } from "@/lib/sizes";
+import { SIZE_MAX, SIZE_MIN, STANDARD_SHOE_SIZES } from "@/lib/sizes";
 
 type SizeFilterDropdownProps = {
   value: string;
@@ -86,7 +86,9 @@ export function SizeFilterDropdown({ value, onChange, className = "" }: SizeFilt
         >
           <div className="border-b border-[#2c2119] px-3 py-2.5">
             <p className="text-xs font-semibold tracking-wide text-[#a89a8c] uppercase">Shoe size</p>
-            <p className="text-[11px] text-[#6b5d52]">Sizes 37 – 48</p>
+            <p className="text-[11px] text-[#6b5d52]">
+              EU {SIZE_MIN} – {SIZE_MAX}
+            </p>
           </div>
 
           <ul id={listboxId} role="listbox" aria-labelledby={triggerId} className="p-2">

@@ -1,6 +1,5 @@
 import { ConnectPromoBanner } from "@/components/social/ConnectPromoBanner";
 import { SiteFooter } from "@/components/social/SiteFooter";
-import { StickyConnectBar } from "@/components/social/StickyConnectBar";
 import { SiteHeader } from "@/components/SiteHeader";
 
 type PublicShellProps = {
@@ -14,9 +13,8 @@ export function PublicShell({ children, contentClassName = "" }: PublicShellProp
     <div className="min-h-screen bg-[#120e0c] text-[#f3ece4]">
       <SiteHeader />
       <ConnectPromoBanner />
-      <div className={`pb-28 sm:pb-32 ${contentClassName}`}>{children}</div>
+      <div className={contentClassName}>{children}</div>
       <SiteFooter />
-      <StickyConnectBar />
     </div>
   );
 }

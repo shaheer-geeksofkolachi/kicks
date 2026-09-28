@@ -1,5 +1,3 @@
-import { ConnectLinks } from "@/components/social/ConnectLinks";
-
 export function SiteFooter() {
   return (
     <footer className="border-t border-[#2c2119] bg-[#0d0a09]">
@@ -8,12 +6,8 @@ export function SiteFooter() {
           <p className="font-display text-2xl font-semibold text-[#f3ece4]">Kicksplosion.pk</p>
           <p className="mt-1 text-sm text-[#ff7a1a]">Footwear Ignited</p>
           <p className="mx-auto mt-4 max-w-md text-sm text-[#6b5d52]">
-            Pakistan&apos;s premium sneaker catalog. Connect on our official socials or WhatsApp for orders and
-            inquiries.
+            Pakistan&apos;s premium sneaker catalog — browse the latest drops and order your pair.
           </p>
-        </div>
-        <div className="mt-8">
-          <ConnectLinks variant="footer" />
         </div>
         <p className="mt-10 text-center text-xs text-[#4a4038]">
           © {new Date().getFullYear()} Kicksplosion.pk — All rights reserved.

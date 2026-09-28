@@ -8,7 +8,7 @@ import type { Product } from "@/lib/types";
 import { BrandSelect } from "@/components/BrandSelect";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
 import { SizeMultiSelect } from "@/components/admin/SizeMultiSelect";
-import { SIZE_UNITS, sizesToSelectableValues } from "@/lib/sizes";
+import { CATALOG_SIZE_UNIT, SIZE_MAX, SIZE_MIN, sizesToSelectableValues } from "@/lib/sizes";
 
 type ProductFormProps = {
   product?: Product;
@@ -22,11 +22,10 @@ export function ProductForm({ product }: ProductFormProps) {
   const [removeIds, setRemoveIds] = useState<string[]>([]);
   const [newMediaFiles, setNewMediaFiles] = useState<File[]>([]);
   const existingMedia = product?.product_media ? sortMedia(product.product_media) : [];
-  const sizeUnit = product?.size_unit && SIZE_UNITS.includes(product.size_unit as (typeof SIZE_UNITS)[number])
-    ? product.size_unit
-    : "UK";
   const [selectedSizes, setSelectedSizes] = useState<string[]>(() =>
-    product?.sizes?.length ? sizesToSelectableValues(product.sizes, sizeUnit) : [],
+    product?.sizes?.length
+      ? sizesToSelectableValues(product.sizes, product.size_unit ?? CATALOG_SIZE_UNIT)
+      : [],
   );
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -95,24 +94,22 @@ export function ProductForm({ product }: ProductFormProps) {
           className="w-full rounded-lg border border-zinc-700 bg-[#141414] px-3 py-2 text-sm text-white outline-none ring-[#FF8C00] focus:ring-2"
         />
       </div>
+      <input type="hidden" name="size_unit" value={CATALOG_SIZE_UNIT} />
       <div>
         <label className="mb-1 block text-sm text-zinc-400">Size unit</label>
-        <select
-          name="size_unit"
-          defaultValue={sizeUnit}
-          className="w-full rounded-lg border border-zinc-700 bg-[#141414] px-3 py-2 text-sm text-white outline-none ring-[#FF8C00] focus:ring-2"
+        <div
+          className="w-full rounded-lg border border-zinc-700 bg-[#141414] px-3 py-2.5 text-sm font-semibold text-[#FFD700]"
+          aria-readonly="true"
         >
-          {SIZE_UNITS.map((unit) => (
-            <option key={unit} value={unit}>
-              {unit}
-            </option>
-          ))}
-        </select>
+          EU (fixed)
+        </div>
       </div>
       <div>
-        <label className="mb-1 block text-sm text-zinc-400">Sizes</label>
+        <label className="mb-1 block text-sm text-zinc-400">Sizes (EU)</label>
         <SizeMultiSelect name="sizes" value={selectedSizes} onChange={setSelectedSizes} required />
-        <p className="mt-1 text-xs text-zinc-500">Choose one or more sizes from 37 to 48.</p>
+        <p className="mt-1 text-xs text-zinc-500">
+          Choose one or more sizes from {SIZE_MIN} to {SIZE_MAX}.
+        </p>
       </div>
 
       <label className="flex items-center gap-2 text-sm text-zinc-300">

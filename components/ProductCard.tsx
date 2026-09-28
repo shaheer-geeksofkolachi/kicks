@@ -6,14 +6,14 @@ import { formatPkr } from "@/lib/format";
 import { primaryImageUrl } from "@/lib/media";
 import type { Product } from "@/lib/types";
 import { LoadingSplash } from "@/components/LoadingSplash";
-import { sizesToSelectableValues } from "@/lib/sizes";
+import { CATALOG_SIZE_UNIT, sizesToSelectableValues } from "@/lib/sizes";
 import { SoldOverlay } from "@/components/SoldOverlay";
 
 function ProductCardContent({ product }: { product: Product }) {
   const { pending } = useLinkStatus();
   const imageUrl = primaryImageUrl(product.product_media);
-  const sizeValues = sizesToSelectableValues(product.sizes ?? [], product.size_unit ?? "UK");
-  const sizeUnit = product.size_unit ?? "UK";
+  const sizeUnit = product.size_unit ?? CATALOG_SIZE_UNIT;
+  const sizeValues = sizesToSelectableValues(product.sizes ?? [], sizeUnit);
 
   return (
     <>

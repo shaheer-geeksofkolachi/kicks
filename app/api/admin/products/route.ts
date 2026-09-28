@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { uploadProductFiles } from "@/lib/admin-products";
 import { isAllowedBrand } from "@/lib/brands";
-import { parseSizesInput } from "@/lib/format";
-import { isSizeUnit } from "@/lib/sizes";
+import { CATALOG_SIZE_UNIT, parseAdminSizesInput } from "@/lib/sizes";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET() {
@@ -41,9 +40,12 @@ export async function POST(request: Request) {
   const brand = String(form.get("brand") ?? "").trim();
   const description = String(form.get("description") ?? "").trim();
   const priceRaw = Number(form.get("price_pkr"));
-  const sizes = parseSizesInput(String(form.get("sizes") ?? ""));
-  const sizeUnitRaw = String(form.get("size_unit") ?? "UK");
-  const size_unit = isSizeUnit(sizeUnitRaw) ? sizeUnitRaw : "UK";
+  const sizesParsed = parseAdminSizesInput(String(form.get("sizes") ?? ""));
+  if (!sizesParsed.ok) {
+    return NextResponse.json({ error: sizesParsed.error }, { status: 400 });
+  }
+  const sizes = sizesParsed.sizes;
+  const size_unit = CATALOG_SIZE_UNIT;
   const isSold = form.get("is_sold") === "true";
   const files = form.getAll("media").filter((f): f is File => f instanceof File && f.size > 0);
 

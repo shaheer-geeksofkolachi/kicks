@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { STANDARD_SHOE_SIZES } from "@/lib/sizes";
+import { SIZE_MAX, SIZE_MIN, STANDARD_SHOE_SIZES } from "@/lib/sizes";
 
 type SizeMultiSelectProps = {
   name: string;
@@ -36,8 +36,7 @@ export function SizeMultiSelect({ name, value, onChange, required }: SizeMultiSe
   const selectedSet = new Set(value);
   const sortedSelected = [...value].sort((a, b) => Number(a) - Number(b));
 
-  const extraSizes = value.filter((s) => !STANDARD_SHOE_SIZES.includes(s));
-  const options = [...STANDARD_SHOE_SIZES, ...extraSizes];
+  const options = STANDARD_SHOE_SIZES;
 
   useEffect(() => {
     if (!open) return;
@@ -65,7 +64,7 @@ export function SizeMultiSelect({ name, value, onChange, required }: SizeMultiSe
 
   const triggerLabel =
     sortedSelected.length === 0
-      ? "Select sizes (37–48)"
+      ? `Select sizes (${SIZE_MIN}–${SIZE_MAX})`
       : sortedSelected.length <= 4
         ? sortedSelected.join(", ")
         : `${sortedSelected.length} sizes selected`;
@@ -93,7 +92,9 @@ export function SizeMultiSelect({ name, value, onChange, required }: SizeMultiSe
           className="absolute top-[calc(100%+6px)] right-0 left-0 z-50 overflow-hidden rounded-xl border border-zinc-700 bg-[#141414] shadow-[0_12px_40px_rgba(0,0,0,0.5)]"
         >
           <div className="flex items-center justify-between border-b border-zinc-800 px-3 py-2">
-            <span className="text-xs font-medium text-zinc-400">Sizes 37 – 48</span>
+            <span className="text-xs font-medium text-zinc-400">
+              EU sizes {SIZE_MIN} – {SIZE_MAX}
+            </span>
             {sortedSelected.length > 0 && (
               <button
                 type="button"
