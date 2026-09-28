@@ -9,6 +9,10 @@ create table if not exists public.products (
   brand text not null,
   description text,
   price_pkr integer not null check (price_pkr >= 0),
+  discount_price_pkr integer check (
+    discount_price_pkr is null
+    or (discount_price_pkr >= 0 and discount_price_pkr < price_pkr)
+  ),
   sizes text[] not null default '{}',
   size_unit text not null default 'UK' check (size_unit in ('UK', 'US', 'EU')),
   is_sold boolean not null default false,

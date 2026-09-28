@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { CatalogFilters } from "@/components/CatalogFilters";
 import { LoadingSplash } from "@/components/LoadingSplash";
 import { ProductCard } from "@/components/ProductCard";
+import { ReviewsCarousel } from "@/components/ReviewsCarousel";
 import type { Product } from "@/lib/types";
 import { productIncludesSize } from "@/lib/sizes";
 
@@ -73,7 +74,7 @@ export function CatalogClient({ products, configError }: CatalogClientProps) {
       />
 
       <div className="relative mx-auto max-w-[1120px] px-[18px] pt-8 sm:px-10 sm:pt-10">
-        <header className="mb-8 sm:mb-10">
+        <header id="catalog" className="mb-8 scroll-mt-24 sm:mb-10">
           <p className="text-xs font-semibold tracking-[0.2em] text-[#ff7a1a] uppercase">Kicksplosion.pk</p>
           <h1 className="mt-2 font-display text-4xl leading-tight tracking-tight text-[#f3ece4] sm:text-5xl">
             Our Catalog
@@ -154,6 +155,8 @@ export function CatalogClient({ products, configError }: CatalogClientProps) {
             ))}
           </div>
         )}
+
+        <ReviewsCarousel />
       </div>
     </div>
   );

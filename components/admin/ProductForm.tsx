@@ -7,6 +7,7 @@ import { getStoragePublicUrl, sortMedia } from "@/lib/media";
 import type { Product } from "@/lib/types";
 import { BrandSelect } from "@/components/BrandSelect";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
+import { PriceDiscountFields } from "@/components/admin/PriceDiscountFields";
 import { SizeMultiSelect } from "@/components/admin/SizeMultiSelect";
 import { CATALOG_SIZE_UNIT, SIZE_MAX, SIZE_MIN, sizesToSelectableValues } from "@/lib/sizes";
 
@@ -77,13 +78,9 @@ export function ProductForm({ product }: ProductFormProps) {
           extraBrands={product?.brand ? [product.brand] : []}
         />
       </div>
-      <Field
-        label="Price (PKR)"
-        name="price_pkr"
-        type="number"
-        min={0}
-        required
-        defaultValue={product?.price_pkr ?? ""}
+      <PriceDiscountFields
+        initialPrice={product?.price_pkr}
+        initialDiscount={product?.discount_price_pkr ?? null}
       />
       <div>
         <label className="mb-1 block text-sm text-zinc-400">Description</label>

@@ -1,4 +1,4 @@
-import { ConnectPromoBanner } from "@/components/social/ConnectPromoBanner";
+import { HeroBanner } from "@/components/HeroBanner";
 import { SiteFooter } from "@/components/social/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 
@@ -12,7 +12,7 @@ export function PublicShell({ children, contentClassName = "" }: PublicShellProp
   return (
     <div className="min-h-screen bg-[#120e0c] text-[#f3ece4]">
       <SiteHeader />
-      <ConnectPromoBanner />
+      <HeroBanner />
       <div className={contentClassName}>{children}</div>
       <SiteFooter />
     </div>

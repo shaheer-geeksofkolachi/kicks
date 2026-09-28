@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { ProductGallery } from "@/components/product/ProductGallery";
-import { formatPkr } from "@/lib/format";
+import { ProductPrice } from "@/components/ProductPrice";
+import { getProductPricing } from "@/lib/pricing";
 import type { Product } from "@/lib/types";
 import { formatSizeLabel } from "@/lib/sizes";
 import { buildWhatsAppOrderUrl, getWhatsAppNumber } from "@/lib/whatsapp";
@@ -24,17 +25,20 @@ export function ProductDetailClient({ product, pageUrl }: ProductDetailClientPro
   const whatsappConfigured = Boolean(getWhatsAppNumber());
   const canOrder = !product.is_sold && whatsappConfigured;
 
+  const pricing = getProductPricing(product);
+
   const whatsappUrl = useMemo(
     () =>
       buildWhatsAppOrderUrl({
         productName: product.name,
         brand: product.brand,
-        pricePkr: product.price_pkr,
+        pricePkr: pricing.effectivePrice,
+        originalPricePkr: pricing.hasDiscount ? pricing.originalPrice : undefined,
         size: selectedSizeLabel,
         quantity,
         pageUrl,
       }),
-    [product, selectedSizeLabel, quantity, pageUrl],
+    [product, pricing.effectivePrice, pricing.hasDiscount, pricing.originalPrice, selectedSizeLabel, quantity, pageUrl],
   );
 
   function changeQty(delta: number) {
@@ -67,8 +71,8 @@ export function ProductDetailClient({ product, pageUrl }: ProductDetailClientPro
             {product.name}
           </h1>
 
-          <div className="mb-5 flex items-baseline gap-3">
-            <span className="text-[28px] font-extrabold text-white">{formatPkr(product.price_pkr)}</span>
+          <div className="mb-5">
+            <ProductPrice product={product} size="lg" />
           </div>
 
           {product.is_sold && (
@@ -162,7 +166,7 @@ export function ProductDetailClient({ product, pageUrl }: ProductDetailClientPro
         className="fixed right-0 bottom-0 left-0 z-40 flex items-center justify-between gap-3.5 border-t border-[#2c2119] bg-[#181310] px-4 py-3 sm:hidden"
         style={{ paddingBottom: "calc(12px + env(safe-area-inset-bottom, 0px))" }}
       >
-        <span className="text-lg font-extrabold text-white">{formatPkr(product.price_pkr)}</span>
+        <ProductPrice product={product} size="md" />
         <button
           type="button"
           onClick={openWhatsApp}

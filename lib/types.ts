@@ -14,6 +14,7 @@ export type Product = {
   brand: string;
   description: string | null;
   price_pkr: number;
+  discount_price_pkr: number | null;
   sizes: string[];
   size_unit: string;
   is_sold: boolean;

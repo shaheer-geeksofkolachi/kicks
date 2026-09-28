@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link, { useLinkStatus } from "next/link";
-import { formatPkr } from "@/lib/format";
+import { ProductPrice } from "@/components/ProductPrice";
 import { primaryImageUrl } from "@/lib/media";
 import type { Product } from "@/lib/types";
 import { LoadingSplash } from "@/components/LoadingSplash";
@@ -69,7 +69,9 @@ function ProductCardContent({ product }: { product: Product }) {
               </div>
             </div>
           )}
-          <p className="mt-auto pt-2 text-sm font-bold text-[#ffd700]">{formatPkr(product.price_pkr)}</p>
+          <div className="mt-auto pt-2">
+            <ProductPrice product={product} size="sm" />
+          </div>
         </div>
       </div>
     </>

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { uploadProductFiles } from "@/lib/admin-products";
 import { isAllowedBrand } from "@/lib/brands";
+import { parseDiscountPricePkr } from "@/lib/pricing";
 import { CATALOG_SIZE_UNIT, parseAdminSizesInput } from "@/lib/sizes";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -16,7 +17,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from("products")
     .select(
-      `id, name, brand, description, price_pkr, sizes, size_unit, is_sold, created_at, updated_at,
+      `id, name, brand, description, price_pkr, discount_price_pkr, sizes, size_unit, is_sold, created_at, updated_at,
       product_media (id, product_id, kind, storage_path, sort_order)`,
     )
     .order("created_at", { ascending: false });
@@ -56,6 +57,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Please select a valid brand" }, { status: 400 });
   }
 
+  const price_pkr = Math.round(priceRaw);
+  const discountParsed = parseDiscountPricePkr(String(form.get("discount_price_pkr") ?? ""), price_pkr);
+  if (!discountParsed.ok) {
+    return NextResponse.json({ error: discountParsed.error }, { status: 400 });
+  }
+
   const supabase = createAdminClient();
   const { data: product, error } = await supabase
     .from("products")
@@ -63,7 +70,8 @@ export async function POST(request: Request) {
       name,
       brand,
       description: description || null,
-      price_pkr: Math.round(priceRaw),
+      price_pkr,
+      discount_price_pkr: discountParsed.value,
       sizes,
       size_unit,
       is_sold: isSold,

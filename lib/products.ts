@@ -7,6 +7,7 @@ const PRODUCT_SELECT = `
   brand,
   description,
   price_pkr,
+  discount_price_pkr,
   sizes,
   size_unit,
   is_sold,

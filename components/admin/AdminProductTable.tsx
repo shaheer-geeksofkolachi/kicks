@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { formatPkr } from "@/lib/format";
+import { ProductPrice } from "@/components/ProductPrice";
 import type { Product } from "@/lib/types";
 
 export function AdminProductTable({ products }: { products: Product[] }) {
@@ -51,7 +51,9 @@ export function AdminProductTable({ products }: { products: Product[] }) {
             <tr key={p.id} className="bg-[#0f0f0f]">
               <td className="px-4 py-3 text-white">{p.name}</td>
               <td className="px-4 py-3 text-zinc-300">{p.brand}</td>
-              <td className="px-4 py-3 text-[#FFD700]">{formatPkr(p.price_pkr)}</td>
+              <td className="px-4 py-3">
+                <ProductPrice product={p} size="sm" />
+              </td>
               <td className="px-4 py-3">
                 {p.is_sold ? (
                   <span className="text-[#FF8C00] font-medium">Sold</span>
