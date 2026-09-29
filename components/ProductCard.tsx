@@ -22,7 +22,7 @@ function ProductCardContent({ product }: { product: Product }) {
     <>
       {pending && <LoadingSplash message="Loading product…" />}
       <div
-        className={`relative flex flex-col overflow-hidden rounded-2xl border bg-[#1a1410] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_16px_48px_rgba(0,0,0,0.5)] ${
+        className={`relative flex h-full flex-col overflow-hidden rounded-2xl border bg-[#1a1410] transition duration-300 group-hover:-translate-y-1 group-hover:shadow-[0_16px_48px_rgba(0,0,0,0.5)] ${
           onSale
             ? "border-[#ff7a1a]/45 shadow-[0_0_0_1px_rgba(255,122,26,0.12),inset_0_1px_0_rgba(255,154,77,0.08)] group-hover:border-[#ff9a4d]/55 group-hover:shadow-[0_16px_48px_rgba(0,0,0,0.5),0_0_24px_rgba(255,122,26,0.12)]"
             : "border-[#2c2119] group-hover:border-[#ff7a1a]/35 group-hover:shadow-[0_12px_40px_rgba(0,0,0,0.45),0_0_0_1px_rgba(255,122,26,0.08)]"
@@ -72,12 +72,16 @@ function ProductCardContent({ product }: { product: Product }) {
           </span>
         </div>
         <div className="flex flex-1 flex-col gap-1.5 p-4">
-          {product.brand ? (
-            <p className="text-[10px] font-bold tracking-[0.14em] text-[#ff7a1a] uppercase sm:text-[11px]">
-              {product.brand}
-            </p>
-          ) : null}
-          <h2 className="line-clamp-2 font-display text-[15px] leading-snug font-semibold text-[#f8f2eb] sm:text-[17px]">
+          <p className="min-h-[14px] text-[10px] font-bold tracking-[0.14em] uppercase sm:min-h-[15px] sm:text-[11px]">
+            {product.brand ? (
+              <span className="text-[#ff7a1a]">{product.brand}</span>
+            ) : (
+              <span className="invisible select-none" aria-hidden>Brand</span>
+            )}
+          </p>
+          <h2
+            className="line-clamp-2 min-h-[2.6rem] font-display text-[15px] leading-snug font-semibold text-[#f8f2eb] sm:min-h-[2.85rem] sm:text-[17px]"
+          >
             {product.name}
           </h2>
           {sizeValues.length > 0 && (
@@ -112,7 +116,7 @@ export function ProductCard({ product }: { product: Product }) {
   const href = `/products/${product.id}`;
 
   return (
-    <Link href={href} className="group relative flex flex-col">
+    <Link href={href} className="group relative flex h-full flex-col">
       <ProductCardContent product={product} />
     </Link>
   );

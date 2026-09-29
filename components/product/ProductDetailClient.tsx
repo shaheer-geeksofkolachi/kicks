@@ -17,7 +17,6 @@ export function ProductDetailClient({ product, pageUrl }: ProductDetailClientPro
   const sizes = product.sizes ?? [];
   const sizeUnit = product.size_unit ?? "UK";
   const [selectedSize, setSelectedSize] = useState(sizes[0] ?? "");
-  const [quantity, setQuantity] = useState(1);
   const selectedSizeLabel = selectedSize
     ? formatSizeLabel(sizeUnit, selectedSize)
     : undefined;
@@ -35,15 +34,10 @@ export function ProductDetailClient({ product, pageUrl }: ProductDetailClientPro
         pricePkr: pricing.effectivePrice,
         originalPricePkr: pricing.hasDiscount ? pricing.originalPrice : undefined,
         size: selectedSizeLabel,
-        quantity,
         pageUrl,
       }),
-    [product, pricing.effectivePrice, pricing.hasDiscount, pricing.originalPrice, selectedSizeLabel, quantity, pageUrl],
+    [product, pricing.effectivePrice, pricing.hasDiscount, pricing.originalPrice, selectedSizeLabel, pageUrl],
   );
-
-  function changeQty(delta: number) {
-    setQuantity((q) => Math.min(99, Math.max(1, q + delta)));
-  }
 
   function openWhatsApp() {
     if (!whatsappUrl || !canOrder) return;
@@ -119,33 +113,12 @@ export function ProductDetailClient({ product, pageUrl }: ProductDetailClientPro
             </>
           )}
 
-          <div className="mt-7 hidden flex-wrap gap-3 sm:flex">
-            <div className="flex items-center overflow-hidden rounded-[10px] border border-[#3d2b1c]">
-              <button
-                type="button"
-                onClick={() => changeQty(-1)}
-                disabled={!canOrder || quantity <= 1}
-                className="flex h-12 w-9 items-center justify-center text-[#f3ece4] disabled:opacity-40"
-                aria-label="Decrease quantity"
-              >
-                −
-              </button>
-              <span className="w-[34px] text-center text-sm">{quantity}</span>
-              <button
-                type="button"
-                onClick={() => changeQty(1)}
-                disabled={!canOrder || quantity >= 99}
-                className="flex h-12 w-9 items-center justify-center text-[#f3ece4] disabled:opacity-40"
-                aria-label="Increase quantity"
-              >
-                +
-              </button>
-            </div>
+          <div className="mt-7 hidden sm:block">
             <button
               type="button"
               onClick={openWhatsApp}
               disabled={!canOrder}
-              className="flex flex-1 items-center justify-center gap-2 rounded-[10px] bg-[#ff7a1a] px-6 py-3 text-[15px] font-extrabold tracking-wide text-[#1c0a00] transition hover:bg-[#ff8c3d] disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex w-full max-w-md items-center justify-center gap-2 rounded-[10px] bg-[#ff7a1a] px-6 py-3 text-[15px] font-extrabold tracking-wide text-[#1c0a00] transition hover:bg-[#ff8c3d] disabled:cursor-not-allowed disabled:opacity-50"
             >
               Order on WhatsApp
             </button>

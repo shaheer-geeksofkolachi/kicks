@@ -46,7 +46,7 @@ export function HomePageClient({ products, configError }: HomePageClientProps) {
               {deals.map((product) => (
                 <li
                   key={product.id}
-                  className="w-[min(72vw,220px)] shrink-0 snap-start sm:w-[240px]"
+                  className="flex w-[min(72vw,220px)] shrink-0 snap-start sm:w-[240px]"
                 >
                   <ProductCard product={product} />
                 </li>

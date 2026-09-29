@@ -6,7 +6,6 @@ type WhatsAppOrderParams = {
   pricePkr: number;
   originalPricePkr?: number;
   size?: string;
-  quantity: number;
   pageUrl: string;
 };
 
@@ -28,7 +27,6 @@ export function buildWhatsAppOrderUrl(params: WhatsAppOrderParams): string | nul
       ? `Price: ${formatPkr(params.pricePkr)} (was ${formatPkr(params.originalPricePkr)})`
       : `Price: ${formatPkr(params.pricePkr)}`,
     params.size ? `Size: ${params.size}` : null,
-    `Quantity: ${params.quantity}`,
     "",
     `Link: ${params.pageUrl}`,
   ].filter(Boolean);
