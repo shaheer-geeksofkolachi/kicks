@@ -1,6 +1,5 @@
 import type { MediaKind } from "@/lib/types";
 
-type PresignFile = { name: string; contentType: string };
 type PresignUpload = {
   storagePath: string;
   uploadUrl: string;
@@ -8,22 +7,67 @@ type PresignUpload = {
   sortOrder: number;
 };
 
-export async function uploadProductMediaClient(
-  productId: string,
-  files: File[],
-  startOrder: number,
-): Promise<void> {
-  if (!files.length) return;
+function isLikelyCorsOrNetworkError(err: unknown): boolean {
+  if (err instanceof TypeError) return true;
+  if (err instanceof Error) {
+    const m = err.message.toLowerCase();
+    return m.includes("failed to fetch") || m.includes("networkerror") || m.includes("load failed");
+  }
+  return false;
+}
 
+async function commitMediaItems(
+  productId: string,
+  items: { storagePath: string; kind: MediaKind; sortOrder: number }[],
+) {
+  const commitRes = await fetch(`/api/admin/products/${productId}/media/commit`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ items }),
+  });
+  const commitJson = await commitRes.json().catch(() => ({}));
+  if (!commitRes.ok) {
+    throw new Error(commitJson.error ?? "Could not save uploaded media");
+  }
+}
+
+async function uploadViaPresignedPut(upload: PresignUpload, file: File): Promise<void> {
+  const putRes = await fetch(upload.uploadUrl, {
+    method: "PUT",
+    body: file,
+    headers: {
+      "Content-Type": file.type || "application/octet-stream",
+    },
+  });
+  if (!putRes.ok) {
+    throw new Error(`Upload failed for ${file.name}`);
+  }
+}
+
+async function uploadViaServerProxy(
+  productId: string,
+  file: File,
+  sortOrder: number,
+): Promise<void> {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("sortOrder", String(sortOrder));
+  const res = await fetch(`/api/admin/products/${productId}/media/upload`, {
+    method: "POST",
+    body: form,
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(json.error ?? `Server upload failed for ${file.name}`);
+  }
+}
+
+async function uploadOneFile(productId: string, file: File): Promise<void> {
   const presignRes = await fetch(`/api/admin/products/${productId}/media/presign`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      startOrder,
-      files: files.map((f) => ({
-        name: f.name,
-        contentType: f.type || "application/octet-stream",
-      })) satisfies PresignFile[],
+      files: [{ name: file.name, contentType: file.type || "application/octet-stream" }],
     }),
   });
 
@@ -33,41 +77,27 @@ export async function uploadProductMediaClient(
   }
 
   const uploads = presignJson.uploads as PresignUpload[];
-  if (!Array.isArray(uploads) || uploads.length !== files.length) {
+  const upload = uploads?.[0];
+  if (!upload) {
     throw new Error("Invalid upload response from server");
   }
 
-  const results = await Promise.all(
-    uploads.map(async (upload, index) => {
-      const file = files[index];
-      const putRes = await fetch(upload.uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: {
-          "Content-Type": file.type || "application/octet-stream",
-        },
-      });
-      if (!putRes.ok) {
-        throw new Error(`Upload failed for ${file.name}`);
-      }
-      return upload;
-    }),
-  );
+  try {
+    await uploadViaPresignedPut(upload, file);
+    await commitMediaItems(productId, [
+      { storagePath: upload.storagePath, kind: upload.kind, sortOrder: upload.sortOrder },
+    ]);
+  } catch (err) {
+    const useProxy =
+      isLikelyCorsOrNetworkError(err) ||
+      (err instanceof Error && err.message.toLowerCase().includes("upload failed"));
+    if (!useProxy) throw err;
+    await uploadViaServerProxy(productId, file, upload.sortOrder);
+  }
+}
 
-  const commitRes = await fetch(`/api/admin/products/${productId}/media/commit`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      items: results.map((u) => ({
-        storagePath: u.storagePath,
-        kind: u.kind,
-        sortOrder: u.sortOrder,
-      })),
-    }),
-  });
-
-  const commitJson = await commitRes.json().catch(() => ({}));
-  if (!commitRes.ok) {
-    throw new Error(commitJson.error ?? "Could not save uploaded media");
+export async function uploadProductMediaClient(productId: string, files: File[]): Promise<void> {
+  for (let i = 0; i < files.length; i++) {
+    await uploadOneFile(productId, files[i]);
   }
 }

@@ -71,16 +71,12 @@ export function ProductForm({ product }: ProductFormProps) {
 
     if (newMediaFiles.length) {
       try {
-        await uploadProductMediaClient(productId, newMediaFiles, 0);
+        await uploadProductMediaClient(productId, newMediaFiles);
       } catch (uploadErr) {
         if (!isEdit) {
           await fetch(`/api/admin/products/${productId}`, { method: "DELETE" }).catch(() => undefined);
         }
-        setError(
-          uploadErr instanceof Error
-            ? `${uploadErr.message}. If uploads fail from the browser, add S3 CORS for your site domain (see docs/s3-cors-example.json).`
-            : "Upload failed",
-        );
+        setError(uploadErr instanceof Error ? uploadErr.message : "Upload failed");
         setSaving(false);
         return;
       }
@@ -190,7 +186,8 @@ export function ProductForm({ product }: ProductFormProps) {
         <label className="mb-1 block text-sm text-zinc-400">Images / videos</label>
         <MediaUploadField files={newMediaFiles} onChange={setNewMediaFiles} />
         <p className="mt-1 text-xs text-zinc-500">
-          Photos upload directly to storage (not through Vercel), so large images are supported.
+          Large photos work best with S3 CORS configured (see docs/s3-cors-example.json). Otherwise each
+          image must be under 4MB.
         </p>
       </div>
 

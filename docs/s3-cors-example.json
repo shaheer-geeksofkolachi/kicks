@@ -4,6 +4,7 @@
     "AllowedMethods": ["GET", "PUT", "HEAD"],
     "AllowedOrigins": [
       "https://kicks-orcin.vercel.app",
+      "https://www.kicksplosion.pk",
       "https://kicksplosion.pk",
       "http://localhost:3000"
     ],
