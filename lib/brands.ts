@@ -98,7 +98,7 @@ export function getBrandOptions(extra: string[] = []): string[] {
 
 export function isAllowedBrand(brand: string, extra: string[] = []): boolean {
   const trimmed = brand.trim();
-  if (!trimmed) return false;
+  if (!trimmed) return true;
   if (brandSet.has(trimmed)) return true;
   return extra.some((e) => e.trim() === trimmed);
 }

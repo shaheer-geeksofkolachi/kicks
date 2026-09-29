@@ -72,9 +72,11 @@ function ProductCardContent({ product }: { product: Product }) {
           </span>
         </div>
         <div className="flex flex-1 flex-col gap-1.5 p-4">
-          <p className="text-[10px] font-bold tracking-[0.14em] text-[#ff7a1a] uppercase sm:text-[11px]">
-            {product.brand}
-          </p>
+          {product.brand ? (
+            <p className="text-[10px] font-bold tracking-[0.14em] text-[#ff7a1a] uppercase sm:text-[11px]">
+              {product.brand}
+            </p>
+          ) : null}
           <h2 className="line-clamp-2 font-display text-[15px] leading-snug font-semibold text-[#f8f2eb] sm:text-[17px]">
             {product.name}
           </h2>

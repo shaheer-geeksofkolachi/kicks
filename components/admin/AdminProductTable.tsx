@@ -50,7 +50,7 @@ export function AdminProductTable({ products }: { products: Product[] }) {
           {products.map((p) => (
             <tr key={p.id} className="bg-[#0f0f0f]">
               <td className="px-4 py-3 text-white">{p.name}</td>
-              <td className="px-4 py-3 text-zinc-300">{p.brand}</td>
+              <td className="px-4 py-3 text-zinc-300">{p.brand || "—"}</td>
               <td className="px-4 py-3">
                 <ProductPrice product={p} size="sm" />
               </td>

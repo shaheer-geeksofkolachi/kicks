@@ -23,7 +23,7 @@ export function buildWhatsAppOrderUrl(params: WhatsAppOrderParams): string | nul
     "Hi Kicksplosion.pk! I'd like to order:",
     "",
     `Product: ${params.productName}`,
-    `Brand: ${params.brand}`,
+    params.brand.trim() ? `Brand: ${params.brand.trim()}` : null,
     params.originalPricePkr != null && params.originalPricePkr > params.pricePkr
       ? `Price: ${formatPkr(params.pricePkr)} (was ${formatPkr(params.originalPricePkr)})`
       : `Price: ${formatPkr(params.pricePkr)}`,

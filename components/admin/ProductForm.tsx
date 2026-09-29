@@ -70,12 +70,14 @@ export function ProductForm({ product }: ProductFormProps) {
 
       <Field label="Name" name="name" required defaultValue={product?.name} />
       <div>
-        <label className="mb-1 block text-sm text-zinc-400">Brand</label>
+        <label className="mb-1 block text-sm text-zinc-400">
+          Brand <span className="text-zinc-600">(optional)</span>
+        </label>
         <BrandSelect
           name="brand"
-          required
           defaultValue={product?.brand ?? ""}
           extraBrands={product?.brand ? [product.brand] : []}
+          placeholder="Search brands or leave empty…"
         />
       </div>
       <PriceDiscountFields
@@ -163,7 +165,13 @@ export function ProductForm({ product }: ProductFormProps) {
           disabled={saving}
           className="rounded-lg bg-[#FF8C00] px-6 py-2.5 text-sm font-semibold text-black transition hover:bg-[#FFD700] disabled:opacity-50"
         >
-          {saving ? "Saving…" : isEdit ? "Update product" : "Create product"}
+          {saving
+            ? newMediaFiles.length > 0
+              ? "Uploading & saving…"
+              : "Saving…"
+            : isEdit
+              ? "Update product"
+              : "Create product"}
         </button>
         <button
           type="button"

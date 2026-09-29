@@ -61,11 +61,13 @@ export function ProductDetailClient({ product, pageUrl }: ProductDetailClientPro
         />
 
         <div className="pb-24 md:pb-0">
-          <p className="mb-2 flex items-center gap-2 text-xs font-bold tracking-[0.2em] text-[#ff7a1a] uppercase">
-            <span className="rounded-full bg-[#3a2311] px-2.5 py-0.5 text-[11px] tracking-wide text-[#ffb27a] normal-case">
-              {product.brand}
-            </span>
-          </p>
+          {product.brand ? (
+            <p className="mb-2 flex items-center gap-2 text-xs font-bold tracking-[0.2em] text-[#ff7a1a] uppercase">
+              <span className="rounded-full bg-[#3a2311] px-2.5 py-0.5 text-[11px] tracking-wide text-[#ffb27a] normal-case">
+                {product.brand}
+              </span>
+            </p>
+          ) : null}
 
           <h1 className="mb-2.5 text-[34px] leading-[1.15] font-extrabold tracking-tight text-[#f3ece4]">
             {product.name}

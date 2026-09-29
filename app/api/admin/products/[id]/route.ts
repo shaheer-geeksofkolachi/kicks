@@ -34,8 +34,8 @@ export async function PATCH(request: Request, context: RouteContext) {
     .filter(Boolean);
   const files = form.getAll("media").filter((f): f is File => f instanceof File && f.size > 0);
 
-  if (!name || !brand || !Number.isFinite(priceRaw) || priceRaw < 0) {
-    return NextResponse.json({ error: "Name, brand, and valid price are required" }, { status: 400 });
+  if (!name || !Number.isFinite(priceRaw) || priceRaw < 0) {
+    return NextResponse.json({ error: "Name and valid price are required" }, { status: 400 });
   }
 
   const supabase = createAdminClient();
