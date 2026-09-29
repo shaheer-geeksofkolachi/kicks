@@ -1,20 +1,20 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 
 const ACCENT = "#f07a2c";
-const BANNER_ASPECT = 2400 / 340;
 
-function HeroSneakerSvg() {
+function HeroSneakerSvg({
+  className,
+  style,
+}: {
+  className?: string;
+  style?: CSSProperties;
+}) {
   return (
     <svg
       viewBox="-260 60 1140 380"
-      className="pointer-events-none absolute overflow-visible"
-      style={{
-        left: "54.17%",
-        top: "5.88%",
-        width: "35.83%",
-        height: "84.4%",
-        transform: "rotate(-8deg)",
-      }}
+      className={className}
+      style={style}
       aria-hidden
     >
       <path
@@ -68,57 +68,91 @@ export function HeroBanner() {
     <section className="w-full border-b border-[#2c2119] bg-[#14110f]" aria-label="Kicksplosion.pk hero">
       <Link
         href="/catalog"
-        className="group relative mx-auto block w-full max-w-[2400px] overflow-hidden transition hover:brightness-[1.03]"
-        style={{ aspectRatio: String(BANNER_ASPECT) }}
+        className="group relative mx-auto block w-full max-w-[2400px] overflow-hidden transition hover:brightness-[1.03] md:aspect-[2400/340]"
       >
         <div
-          className="absolute inset-0 text-[#f4ede4]"
+          className="relative text-[#f4ede4] md:absolute md:inset-0"
           style={{
             background:
-              "radial-gradient(ellipse 37.5% 123.5% at 71.67% 58.8%, #3a1d0e 0%, #14110f 70%)",
+              "radial-gradient(ellipse 80% 120% at 85% 50%, #3a1d0e 0%, #14110f 65%)",
           }}
         >
           <div
-            className="absolute inset-x-0 bottom-0 h-[2px] opacity-60"
+            className="absolute inset-x-0 bottom-0 h-[2px] opacity-60 md:bottom-0"
             style={{ background: ACCENT }}
           />
 
-          <div
-            className="absolute top-0 bottom-0 flex flex-col justify-center"
-            style={{
-              left: "17.5%",
-              width: "34.17%",
-              gap: "clamp(6px, 0.58vw, 14px)",
-            }}
-          >
-            <p
-              className="m-0 font-medium uppercase"
-              style={{
-                color: ACCENT,
-                fontSize: "clamp(9px, 0.75vw, 18px)",
-                letterSpacing: "clamp(2px, 0.25vw, 6px)",
-              }}
-            >
-              Thrifted · Pre-loved · Footwear ignited
-            </p>
-            <h2
-              className="m-0 font-display font-bold uppercase leading-[0.95]"
-              style={{
-                fontSize: "clamp(26px, 5vw, 120px)",
-                letterSpacing: "1px",
-              }}
-            >
-              Second steps<span style={{ color: ACCENT }}>.</span>
-            </h2>
-            <p
-              className="m-0 text-[#b9ada0]"
-              style={{ fontSize: "clamp(11px, 0.92vw, 22px)" }}
-            >
-              Hand-picked pre-loved kicks. New pairs weekly.
-            </p>
+          {/* Mobile: padded flex row — avoids ultra-short aspect-ratio clipping */}
+          <div className="relative flex min-h-[132px] items-center gap-2 px-4 py-5 sm:min-h-[148px] sm:px-5 md:hidden">
+            <div className="relative z-10 min-w-0 flex-1 pr-1">
+              <p
+                className="m-0 text-[8px] font-medium leading-snug tracking-[0.14em] uppercase sm:text-[9px]"
+                style={{ color: ACCENT }}
+              >
+                Thrifted · Pre-loved
+              </p>
+              <h2 className="m-0 mt-1 font-display text-[22px] leading-[1.05] font-bold tracking-wide uppercase sm:text-[26px]">
+                Second steps<span style={{ color: ACCENT }}>.</span>
+              </h2>
+              <p className="m-0 mt-1.5 line-clamp-2 text-[11px] leading-snug text-[#b9ada0] sm:text-xs">
+                Hand-picked pre-loved kicks.
+              </p>
+            </div>
+            <div className="pointer-events-none relative h-[88px] w-[42%] max-w-[168px] shrink-0 sm:h-[100px]">
+              <HeroSneakerSvg
+                className="absolute inset-0 h-full w-full overflow-visible -rotate-6 scale-110 object-contain"
+              />
+            </div>
           </div>
 
-          <HeroSneakerSvg />
+          {/* Desktop: original proportional layout */}
+          <div className="hidden md:block md:absolute md:inset-0">
+            <div
+              className="absolute top-0 bottom-0 flex flex-col justify-center"
+              style={{
+                left: "17.5%",
+                width: "34.17%",
+                gap: "clamp(6px, 0.58vw, 14px)",
+              }}
+            >
+              <p
+                className="m-0 font-medium uppercase"
+                style={{
+                  color: ACCENT,
+                  fontSize: "clamp(9px, 0.75vw, 18px)",
+                  letterSpacing: "clamp(2px, 0.25vw, 6px)",
+                }}
+              >
+                Thrifted · Pre-loved · Footwear ignited
+              </p>
+              <h2
+                className="m-0 font-display font-bold uppercase leading-[0.95]"
+                style={{
+                  fontSize: "clamp(26px, 5vw, 120px)",
+                  letterSpacing: "1px",
+                }}
+              >
+                Second steps<span style={{ color: ACCENT }}>.</span>
+              </h2>
+              <p
+                className="m-0 text-[#b9ada0]"
+                style={{ fontSize: "clamp(11px, 0.92vw, 22px)" }}
+              >
+                Hand-picked pre-loved kicks. New pairs weekly.
+              </p>
+            </div>
+
+            <HeroSneakerSvg
+              className="pointer-events-none absolute overflow-visible"
+              style={{
+                left: "54.17%",
+                top: "5.88%",
+                width: "35.83%",
+                height: "84.4%",
+                transform: "rotate(-8deg)",
+              }}
+            />
+          </div>
         </div>
         <span className="sr-only">Shop the catalog</span>
       </Link>
