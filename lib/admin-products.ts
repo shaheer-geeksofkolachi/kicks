@@ -6,11 +6,24 @@ import type { MediaKind } from "@/lib/types";
 const UPLOAD_CONCURRENCY = 4;
 
 function mediaKindFromFile(file: File): MediaKind {
-  return file.type.startsWith("video/") ? "video" : "image";
+  return mediaKindFromContentType(file.type);
 }
 
-function sanitizeFilename(name: string): string {
+export function sanitizeFilename(name: string): string {
   return name.replace(/[^a-zA-Z0-9._-]/g, "_");
+}
+
+export function mediaKindFromContentType(contentType: string): MediaKind {
+  return contentType.startsWith("video/") ? "video" : "image";
+}
+
+export function buildProductMediaStoragePath(productId: string, filename: string): string {
+  return `products/${productId}/${randomUUID()}-${sanitizeFilename(filename)}`;
+}
+
+export function isAllowedUploadContentType(contentType: string): boolean {
+  const t = contentType.toLowerCase();
+  return t.startsWith("image/") || t.startsWith("video/");
 }
 
 async function mapWithConcurrency<T, R>(

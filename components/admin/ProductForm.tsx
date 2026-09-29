@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getStoragePublicUrl, sortMedia } from "@/lib/media";
+import { uploadProductMediaClient } from "@/lib/client-product-media-upload";
 import type { Product } from "@/lib/types";
 import { BrandSelect } from "@/components/BrandSelect";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
@@ -14,6 +15,21 @@ import { CATALOG_SIZE_UNIT, SIZE_MAX, SIZE_MIN, sizesToSelectableValues } from "
 type ProductFormProps = {
   product?: Product;
 };
+
+function buildProductJson(form: HTMLFormElement, removeIds: string[]) {
+  const data = new FormData(form);
+  const isSoldEl = form.elements.namedItem("is_sold") as HTMLInputElement | null;
+  return {
+    name: String(data.get("name") ?? "").trim(),
+    brand: String(data.get("brand") ?? "").trim(),
+    description: String(data.get("description") ?? "").trim(),
+    price_pkr: String(data.get("price_pkr") ?? ""),
+    discount_price_pkr: String(data.get("discount_price_pkr") ?? ""),
+    sizes: String(data.get("sizes") ?? ""),
+    is_sold: isSoldEl?.checked ?? false,
+    remove_media_ids: removeIds,
+  };
+}
 
 export function ProductForm({ product }: ProductFormProps) {
   const router = useRouter();
@@ -34,26 +50,42 @@ export function ProductForm({ product }: ProductFormProps) {
     setSaving(true);
     setError(null);
     const form = e.currentTarget;
-    const data = new FormData(form);
-    const isSoldEl = form.elements.namedItem("is_sold") as HTMLInputElement | null;
-    data.set("is_sold", isSoldEl?.checked ? "true" : "false");
-    if (isEdit) {
-      data.set("remove_media_ids", removeIds.join(","));
-    }
-    for (const file of newMediaFiles) {
-      data.append("media", file);
-    }
+    const payload = buildProductJson(form, removeIds);
 
     const url = isEdit ? `/api/admin/products/${product!.id}` : "/api/admin/products";
     const method = isEdit ? "PATCH" : "POST";
 
-    const res = await fetch(url, { method, body: data });
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
     const json = await res.json().catch(() => ({}));
     if (!res.ok) {
       setError(json.error ?? "Save failed");
       setSaving(false);
       return;
     }
+
+    const productId = isEdit ? product!.id : (json.id as string);
+
+    if (newMediaFiles.length) {
+      try {
+        await uploadProductMediaClient(productId, newMediaFiles, 0);
+      } catch (uploadErr) {
+        if (!isEdit) {
+          await fetch(`/api/admin/products/${productId}`, { method: "DELETE" }).catch(() => undefined);
+        }
+        setError(
+          uploadErr instanceof Error
+            ? `${uploadErr.message}. If uploads fail from the browser, add S3 CORS for your site domain (see docs/s3-cors-example.json).`
+            : "Upload failed",
+        );
+        setSaving(false);
+        return;
+      }
+    }
+
     router.push("/admin");
     router.refresh();
   }
@@ -157,6 +189,9 @@ export function ProductForm({ product }: ProductFormProps) {
       <div>
         <label className="mb-1 block text-sm text-zinc-400">Images / videos</label>
         <MediaUploadField files={newMediaFiles} onChange={setNewMediaFiles} />
+        <p className="mt-1 text-xs text-zinc-500">
+          Photos upload directly to storage (not through Vercel), so large images are supported.
+        </p>
       </div>
 
       <div className="flex gap-3 pt-2">
