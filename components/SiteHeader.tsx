@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ConnectLinks } from "@/components/social/ConnectLinks";
+import { SITE_DISPLAY_NAME, SITE_TAGLINE } from "@/lib/site-url";
 
 export function SiteHeader() {
   return (
@@ -9,7 +10,7 @@ export function SiteHeader() {
         <Link href="/" className="brand flex min-w-0 items-center gap-3">
           <Image
             src="/logo.png"
-            alt="Kicksplosion.pk"
+            alt={SITE_DISPLAY_NAME}
             width={38}
             height={38}
             className="rounded-full"
@@ -17,10 +18,10 @@ export function SiteHeader() {
           />
           <div>
             <p className="text-[17px] font-bold leading-tight tracking-wide text-[#f3ece4]">
-              Kicksplosion.pk
+              {SITE_DISPLAY_NAME}
             </p>
             <p className="text-[10px] font-semibold tracking-[0.2em] text-[#ff7a1a] uppercase">
-              Footwear Ignited
+              {SITE_TAGLINE}
             </p>
           </div>
         </Link>

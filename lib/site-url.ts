@@ -1,3 +1,6 @@
+export const SITE_DISPLAY_NAME = "Kicksplosion.store";
+export const SITE_TAGLINE = "Footwear Ignited";
+
 /** Canonical site origin (no trailing slash). */
 export function getSiteUrl(): string {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Oswald } from "next/font/google";
+import { SITE_DISPLAY_NAME, SITE_TAGLINE, getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const inter = Inter({
@@ -14,8 +15,9 @@ const oswald = Oswald({
 });
 
 export const metadata: Metadata = {
-  title: "Kicksplosion.pk | Footwear Ignited",
-  description: "Premium sneaker catalog — Kicksplosion.pk",
+  metadataBase: new URL(getSiteUrl()),
+  title: `${SITE_DISPLAY_NAME} | ${SITE_TAGLINE}`,
+  description: `Premium sneaker catalog — ${SITE_DISPLAY_NAME}`,
   icons: { icon: "/logo.png" },
 };
 

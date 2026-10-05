@@ -1,6 +1,6 @@
-# Kicksplosion.pk
+# Kicksplosion.store
 
-Next.js catalog for **Kicksplosion.pk** — public shoe catalog with filters, media sliders, and an admin area for product management. **Supabase** stores product data; **AWS S3** stores images and videos. Deploy on **Vercel**.
+Next.js catalog for **Kicksplosion.store** — public shoe catalog with filters, media sliders, and an admin area for product management. **Supabase** stores product data; **AWS S3** stores images and videos. Deploy on **Vercel**.
 
 ## Features
 

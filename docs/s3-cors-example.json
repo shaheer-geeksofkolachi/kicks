@@ -3,9 +3,9 @@
     "AllowedHeaders": ["*"],
     "AllowedMethods": ["GET", "PUT", "HEAD"],
     "AllowedOrigins": [
+      "https://kicksplosion.store",
+      "https://www.kicksplosion.store",
       "https://kicks-orcin.vercel.app",
-      "https://www.kicksplosion.pk",
-      "https://kicksplosion.pk",
       "http://localhost:3000"
     ],
     "ExposeHeaders": ["ETag"],

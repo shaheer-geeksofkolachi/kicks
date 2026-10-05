@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ProductDetailClient } from "@/components/product/ProductDetailClient";
 import { PublicShell } from "@/components/PublicShell";
 import { fetchProductById } from "@/lib/products";
+import { getSiteUrl } from "@/lib/site-url";
 
 type PageProps = { params: Promise<{ id: string }> };
 
@@ -11,8 +12,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const product = await fetchProductById(id);
   if (!product) notFound();
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-  const pageUrl = `${baseUrl.replace(/\/$/, "")}/products/${id}`;
+  const pageUrl = `${getSiteUrl()}/products/${id}`;
 
   return (
     <PublicShell>

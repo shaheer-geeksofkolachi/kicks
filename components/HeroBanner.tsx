@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import Link from "next/link";
+import { SITE_DISPLAY_NAME } from "@/lib/site-url";
 
 const ACCENT = "#f07a2c";
 
@@ -65,7 +66,7 @@ function HeroSneakerSvg({
 /** Live banner from `Website banner 2400×340-html/Banner.dc.html` (scales to full width). */
 export function HeroBanner() {
   return (
-    <section className="w-full border-b border-[#2c2119] bg-[#14110f]" aria-label="Kicksplosion.pk hero">
+    <section className="w-full border-b border-[#2c2119] bg-[#14110f]" aria-label={`${SITE_DISPLAY_NAME} hero`}>
       <Link
         href="/catalog"
         className="group relative mx-auto block w-full max-w-[2400px] overflow-hidden transition hover:brightness-[1.03] md:aspect-[2400/340]"

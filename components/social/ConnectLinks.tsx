@@ -5,6 +5,7 @@ import {
   INSTAGRAM_HANDLE,
   INSTAGRAM_URL,
 } from "@/lib/site-links";
+import { SITE_DISPLAY_NAME } from "@/lib/site-url";
 import { FacebookIcon, InstagramIcon, WhatsAppIcon } from "@/components/social/SocialIcons";
 
 type ConnectLinksProps = {
@@ -26,7 +27,7 @@ export function ConnectLinks({ variant }: ConnectLinksProps) {
           target="_blank"
           rel="noopener noreferrer"
           className={`${linkBase} rounded-full border border-[#3d2b1c] bg-[#1a1410] p-2 text-[#f3ece4] hover:border-[#ff7a1a] hover:text-[#ff9a4d] sm:px-3 sm:py-2`}
-          aria-label="Instagram — Kicksplosion.pk"
+          aria-label={`Instagram — ${SITE_DISPLAY_NAME}`}
         >
           <InstagramIcon className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
           <span className="hidden text-xs lg:inline">{INSTAGRAM_HANDLE}</span>
@@ -36,7 +37,7 @@ export function ConnectLinks({ variant }: ConnectLinksProps) {
           target="_blank"
           rel="noopener noreferrer"
           className={`${linkBase} rounded-full border border-[#3d2b1c] bg-[#1a1410] p-2 text-[#f3ece4] hover:border-[#1877f2] hover:text-[#6eb1ff] sm:px-3 sm:py-2`}
-          aria-label="Facebook — Kicksplosion.pk"
+          aria-label={`Facebook — ${SITE_DISPLAY_NAME}`}
         >
           <FacebookIcon className="h-4 w-4 sm:h-[18px] sm:w-[18px]" />
           <span className="hidden text-xs lg:inline">Facebook</span>

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { SITE_DISPLAY_NAME, SITE_TAGLINE } from "@/lib/site-url";
 
 type LoadingSplashProps = {
   message?: string;
@@ -19,7 +20,7 @@ export function LoadingSplash({ message = "Loading catalog…" }: LoadingSplashP
         />
         <Image
           src="/logo.png"
-          alt="Kicksplosion.pk"
+          alt={SITE_DISPLAY_NAME}
           width={160}
           height={160}
           className="relative rounded-full"
@@ -27,7 +28,7 @@ export function LoadingSplash({ message = "Loading catalog…" }: LoadingSplashP
         />
       </div>
       <p className="font-display text-xl tracking-[0.35em] text-[#FFD700] uppercase">
-        Footwear Ignited
+        {SITE_TAGLINE}
       </p>
       <p className="mt-2 text-sm text-zinc-500">{message}</p>
     </div>

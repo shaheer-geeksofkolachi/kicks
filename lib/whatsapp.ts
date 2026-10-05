@@ -1,4 +1,5 @@
 import { formatPkr } from "@/lib/format";
+import { SITE_DISPLAY_NAME } from "@/lib/site-url";
 
 type WhatsAppOrderParams = {
   productName: string;
@@ -19,7 +20,7 @@ export function buildWhatsAppOrderUrl(params: WhatsAppOrderParams): string | nul
   if (!number) return null;
 
   const lines = [
-    "Hi Kicksplosion.pk! I'd like to order:",
+    `Hi ${SITE_DISPLAY_NAME}! I'd like to order:`,
     "",
     `Product: ${params.productName}`,
     params.brand.trim() ? `Brand: ${params.brand.trim()}` : null,
