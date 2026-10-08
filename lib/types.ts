@@ -38,6 +38,8 @@ export type ProductReview = {
 export type ProductReviewWithListing = ProductReview & {
   product_name: string;
   product_brand: string;
+  /** Resolved on the server for display (S3 public URL). */
+  image_url?: string | null;
 };
 
 export type SessionData = {

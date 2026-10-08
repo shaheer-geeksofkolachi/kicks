@@ -5,7 +5,6 @@ import Autoplay from "embla-carousel-autoplay";
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { reviewImageUrl } from "@/lib/review-display";
 import type { ProductReviewWithListing } from "@/lib/types";
 
 type ReviewsCarouselProps = {
@@ -79,7 +78,7 @@ export function ReviewsCarousel({ reviews }: ReviewsCarouselProps) {
       <div className="overflow-hidden rounded-2xl border border-[#2c2119] bg-[#1a1410]/50 py-1" ref={emblaRef}>
         <div className="flex touch-pan-y">
           {reviews.map((review) => {
-            const imageUrl = reviewImageUrl(review);
+            const imageUrl = review.image_url?.trim() || null;
             const listingLabel = review.product_brand
               ? `${review.product_brand} · ${review.product_name}`
               : review.product_name;
@@ -97,16 +96,23 @@ export function ReviewsCarousel({ reviews }: ReviewsCarouselProps) {
                     {listingLabel}
                   </Link>
 
-                  {review.kind === "image" && imageUrl ? (
-                    <div className="relative mt-3 aspect-[4/3] overflow-hidden rounded-lg border border-[#2c2119] bg-black/40">
-                      <Image
-                        src={imageUrl}
-                        alt={review.customer_name ? `Review from ${review.customer_name}` : "Customer review"}
-                        fill
-                        className="object-contain"
-                        sizes="(max-width: 640px) 85vw, 320px"
-                      />
-                    </div>
+                  {review.kind === "image" ? (
+                    imageUrl ? (
+                      <div className="relative mt-3 aspect-[4/3] overflow-hidden rounded-lg border border-[#2c2119] bg-black/40">
+                        <Image
+                          src={imageUrl}
+                          alt={review.customer_name ? `Review from ${review.customer_name}` : "Customer review"}
+                          fill
+                          unoptimized
+                          className="object-contain"
+                          sizes="(max-width: 640px) 85vw, 320px"
+                        />
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-sm text-[#6b5d52]">
+                        Review image is unavailable. Re-save the review from admin to refresh the photo.
+                      </p>
+                    )
                   ) : (
                     <blockquote className="mt-3 flex-1 text-sm leading-relaxed text-[#c4b5a6]">
                       &ldquo;{review.body_text}&rdquo;

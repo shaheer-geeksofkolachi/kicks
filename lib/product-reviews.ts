@@ -1,3 +1,4 @@
+import { getStoragePublicUrl } from "@/lib/media";
 import { createClient } from "@/lib/supabase/server";
 import type { ProductReviewWithListing } from "@/lib/types";
 
@@ -29,6 +30,11 @@ type ReviewRow = {
 function mapReview(row: ReviewRow): ProductReviewWithListing | null {
   const product = Array.isArray(row.products) ? row.products[0] : row.products;
   if (!product) return null;
+  const imageUrl =
+    row.kind === "image" && row.image_storage_path
+      ? getStoragePublicUrl(row.image_storage_path)
+      : null;
+
   return {
     id: row.id,
     product_id: row.product_id,
@@ -39,6 +45,7 @@ function mapReview(row: ReviewRow): ProductReviewWithListing | null {
     created_at: row.created_at,
     product_name: product.name,
     product_brand: product.brand,
+    image_url: imageUrl || null,
   };
 }
 

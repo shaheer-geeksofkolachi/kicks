@@ -52,7 +52,7 @@ export async function POST(request: Request, context: RouteContext) {
     if (imageFile.size > maxBytes) {
       return NextResponse.json({ error: "Review image must be under 4MB." }, { status: 413 });
     }
-    imageStoragePath = `reviews/${productId}/${randomUUID()}-${sanitizeFilename(imageFile.name)}`;
+    imageStoragePath = `products/${productId}/reviews/${randomUUID()}-${sanitizeFilename(imageFile.name)}`;
     const buffer = Buffer.from(await imageFile.arrayBuffer());
     await uploadToS3(imageStoragePath, buffer, imageFile.type);
   }

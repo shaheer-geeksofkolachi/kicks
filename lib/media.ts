@@ -1,8 +1,10 @@
+import { buildS3PublicUrlBase } from "@/lib/s3-config";
 import type { ProductMedia } from "@/lib/types";
 
 /** S3 object key stored in `product_media.storage_path` */
 export function getStoragePublicUrl(storagePath: string): string {
-  const base = process.env.NEXT_PUBLIC_S3_PUBLIC_URL_BASE?.trim();
+  const base =
+    process.env.NEXT_PUBLIC_S3_PUBLIC_URL_BASE?.trim() || buildS3PublicUrlBase();
   if (!base) return "";
 
   const encodedKey = storagePath.split("/").map(encodeURIComponent).join("/");
