@@ -42,6 +42,11 @@ export type ProductReviewWithListing = ProductReview & {
   image_url?: string | null;
 };
 
+/** Admin edit form — review fields plus optional public image URL. */
+export type ProductReviewAdmin = ProductReview & {
+  image_url: string | null;
+};
+
 export type SessionData = {
   isAdmin?: boolean;
 };

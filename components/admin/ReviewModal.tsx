@@ -3,34 +3,38 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import type { Product } from "@/lib/types";
+import type { Product, ProductReviewAdmin } from "@/lib/types";
 
 type ReviewKind = "text" | "image";
 
-type AddReviewModalProps = {
+type ReviewModalProps = {
   product: Product;
+  existingReview?: ProductReviewAdmin | null;
   onClose: () => void;
 };
 
-export function AddReviewModal({ product, onClose }: AddReviewModalProps) {
+export function ReviewModal({ product, existingReview, onClose }: ReviewModalProps) {
+  const isEdit = Boolean(existingReview);
   const router = useRouter();
-  const [kind, setKind] = useState<ReviewKind>("text");
-  const [customerName, setCustomerName] = useState("");
-  const [bodyText, setBodyText] = useState("");
+  const [kind, setKind] = useState<ReviewKind>(existingReview?.kind ?? "text");
+  const [customerName, setCustomerName] = useState(existingReview?.customer_name ?? "");
+  const [bodyText, setBodyText] = useState(existingReview?.body_text ?? "");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(existingReview?.image_url ?? null);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!imageFile) {
-      setPreviewUrl(null);
-      return;
+    if (imageFile) {
+      const url = URL.createObjectURL(imageFile);
+      setPreviewUrl(url);
+      return () => URL.revokeObjectURL(url);
     }
-    const url = URL.createObjectURL(imageFile);
-    setPreviewUrl(url);
-    return () => URL.revokeObjectURL(url);
-  }, [imageFile]);
+    if (!imageFile && existingReview?.kind === "image" && existingReview.image_url) {
+      setPreviewUrl(existingReview.image_url);
+    }
+  }, [imageFile, existingReview]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -44,7 +48,7 @@ export function AddReviewModal({ product, onClose }: AddReviewModalProps) {
     else if (imageFile) form.set("image", imageFile);
 
     const res = await fetch(`/api/admin/products/${product.id}/reviews`, {
-      method: "POST",
+      method: isEdit ? "PATCH" : "POST",
       credentials: "same-origin",
       body: form,
     });
@@ -59,12 +63,30 @@ export function AddReviewModal({ product, onClose }: AddReviewModalProps) {
     onClose();
   }
 
+  async function onDelete() {
+    if (!isEdit || !confirm("Delete this customer review? This cannot be undone.")) return;
+    setDeleting(true);
+    setError(null);
+    const res = await fetch(`/api/admin/products/${product.id}/reviews`, {
+      method: "DELETE",
+      credentials: "same-origin",
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setError(json.error ?? "Could not delete review");
+      setDeleting(false);
+      return;
+    }
+    router.refresh();
+    onClose();
+  }
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="add-review-title"
+      aria-labelledby="review-modal-title"
     >
       <button
         type="button"
@@ -73,7 +95,9 @@ export function AddReviewModal({ product, onClose }: AddReviewModalProps) {
         onClick={onClose}
       />
       <div className="relative z-10 w-full max-w-md rounded-xl border border-zinc-700 bg-[#141414] p-5 shadow-xl">
-        <h2 id="add-review-title" className="font-display text-xl text-white">Add customer review</h2>
+        <h2 id="review-modal-title" className="font-display text-xl text-white">
+          {isEdit ? "Edit customer review" : "Add customer review"}
+        </h2>
         <p className="mt-1 text-sm text-zinc-400">
           For: <span className="text-zinc-200">{product.name}</span>
           {product.brand ? ` · ${product.brand}` : ""}
@@ -140,11 +164,13 @@ export function AddReviewModal({ product, onClose }: AddReviewModalProps) {
             </div>
           ) : (
             <div>
-              <label className="mb-1 block text-sm text-zinc-400">Review screenshot / photo</label>
+              <label className="mb-1 block text-sm text-zinc-400">
+                {isEdit ? "Replace review image (optional)" : "Review screenshot / photo"}
+              </label>
               <input
                 type="file"
                 accept="image/*"
-                required
+                required={!isEdit}
                 onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
                 className="block w-full text-sm text-zinc-400 file:mr-3 file:rounded-lg file:border-0 file:bg-[#FF8C00] file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-black"
               />
@@ -156,24 +182,38 @@ export function AddReviewModal({ product, onClose }: AddReviewModalProps) {
             </div>
           )}
 
-          <div className="flex gap-2 pt-1">
+          <div className="flex flex-wrap gap-2 pt-1">
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || deleting}
               className="flex-1 rounded-lg bg-[#FF8C00] py-2.5 text-sm font-semibold text-black hover:bg-[#FFD700] disabled:opacity-50"
             >
-              {saving ? "Saving…" : "Save review"}
+              {saving ? "Saving…" : isEdit ? "Update review" : "Save review"}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg border border-zinc-600 px-4 py-2.5 text-sm text-zinc-300 hover:border-zinc-400"
+              disabled={saving || deleting}
+              className="rounded-lg border border-zinc-600 px-4 py-2.5 text-sm text-zinc-300 hover:border-zinc-400 disabled:opacity-50"
             >
               Cancel
             </button>
+            {isEdit && (
+              <button
+                type="button"
+                onClick={onDelete}
+                disabled={saving || deleting}
+                className="w-full rounded-lg border border-red-900 py-2.5 text-sm text-red-400 hover:bg-red-950/40 disabled:opacity-50"
+              >
+                {deleting ? "Deleting…" : "Delete review"}
+              </button>
+            )}
           </div>
         </form>
       </div>
     </div>
   );
 }
+
+/** @deprecated Use ReviewModal */
+export const AddReviewModal = ReviewModal;

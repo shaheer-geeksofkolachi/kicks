@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getStoragePublicUrl, sortMedia } from "@/lib/media";
 import { uploadProductMediaClient, uploadProductThumbnailClient } from "@/lib/client-product-media-upload";
-import { AddReviewModal } from "@/components/admin/AddReviewModal";
+import { ReviewModal } from "@/components/admin/ReviewModal";
 import { ThumbnailCropField } from "@/components/admin/ThumbnailCropField";
-import type { Product } from "@/lib/types";
+import type { Product, ProductReviewAdmin } from "@/lib/types";
 import { BrandSelect } from "@/components/BrandSelect";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
 import { PriceDiscountFields } from "@/components/admin/PriceDiscountFields";
@@ -16,7 +16,7 @@ import { CATALOG_SIZE_UNIT, SIZE_MAX, SIZE_MIN, sizesToSelectableValues } from "
 
 type ProductFormProps = {
   product?: Product;
-  hasReview?: boolean;
+  productReview?: ProductReviewAdmin | null;
 };
 
 function buildProductJson(form: HTMLFormElement, removeIds: string[]) {
@@ -34,7 +34,7 @@ function buildProductJson(form: HTMLFormElement, removeIds: string[]) {
   };
 }
 
-export function ProductForm({ product, hasReview = false }: ProductFormProps) {
+export function ProductForm({ product, productReview = null }: ProductFormProps) {
   const router = useRouter();
   const isEdit = Boolean(product);
   const [isSold, setIsSold] = useState(Boolean(product?.is_sold));
@@ -161,14 +161,26 @@ export function ProductForm({ product, hasReview = false }: ProductFormProps) {
           />
           Mark as sold
         </label>
-        {isEdit && product?.is_sold && !hasReview && product && (
-          <button
-            type="button"
-            onClick={() => setShowReviewModal(true)}
-            className="rounded border border-[#FF8C00]/50 bg-[#FF8C00]/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#FFD700] hover:bg-[#FF8C00]/20"
-          >
-            Add review
-          </button>
+        {isEdit && product?.is_sold && product && (
+          <div className="flex flex-wrap gap-2">
+            {productReview ? (
+              <button
+                type="button"
+                onClick={() => setShowReviewModal(true)}
+                className="rounded border border-zinc-600 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-zinc-300 hover:border-[#FF8C00]/50 hover:text-[#FFD700]"
+              >
+                Edit review
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowReviewModal(true)}
+                className="rounded border border-[#FF8C00]/50 bg-[#FF8C00]/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#FFD700] hover:bg-[#FF8C00]/20"
+              >
+                Add review
+              </button>
+            )}
+          </div>
         )}
       </div>
 
@@ -249,8 +261,9 @@ export function ProductForm({ product, hasReview = false }: ProductFormProps) {
     </form>
 
     {showReviewModal && product && (
-      <AddReviewModal
+      <ReviewModal
         product={{ ...product, is_sold: isSold }}
+        existingReview={productReview}
         onClose={() => setShowReviewModal(false)}
       />
     )}

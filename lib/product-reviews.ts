@@ -1,6 +1,6 @@
 import { getStoragePublicUrl } from "@/lib/media";
 import { createClient } from "@/lib/supabase/server";
-import type { ProductReviewWithListing } from "@/lib/types";
+import type { ProductReviewAdmin, ProductReviewWithListing } from "@/lib/types";
 
 const REVIEW_SELECT = `
   id,
@@ -67,6 +67,62 @@ export async function fetchProductReviews(limit?: number): Promise<ProductReview
   }
 
   return (data as ReviewRow[]).map(mapReview).filter((r): r is ProductReviewWithListing => r != null);
+}
+
+function mapReviewAdmin(row: {
+  id: string;
+  product_id: string;
+  customer_name: string | null;
+  kind: "text" | "image";
+  body_text: string | null;
+  image_storage_path: string | null;
+  created_at: string;
+}): ProductReviewAdmin {
+  const imageUrl =
+    row.kind === "image" && row.image_storage_path
+      ? getStoragePublicUrl(row.image_storage_path)
+      : null;
+  return {
+    id: row.id,
+    product_id: row.product_id,
+    customer_name: row.customer_name,
+    kind: row.kind,
+    body_text: row.body_text,
+    image_storage_path: row.image_storage_path,
+    created_at: row.created_at,
+    image_url: imageUrl || null,
+  };
+}
+
+export async function fetchProductReviewByProductId(productId: string): Promise<ProductReviewAdmin | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("product_reviews")
+    .select("id, product_id, customer_name, kind, body_text, image_storage_path, created_at")
+    .eq("product_id", productId)
+    .maybeSingle();
+  if (error || !data) {
+    if (error) console.error("fetchProductReviewByProductId:", error.message);
+    return null;
+  }
+  return mapReviewAdmin(data as ProductReviewAdmin);
+}
+
+export async function fetchReviewsByProductId(): Promise<Record<string, ProductReviewAdmin>> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("product_reviews").select(
+    "id, product_id, customer_name, kind, body_text, image_storage_path, created_at",
+  );
+  if (error) {
+    console.error("fetchReviewsByProductId:", error.message);
+    return {};
+  }
+  const out: Record<string, ProductReviewAdmin> = {};
+  for (const row of data ?? []) {
+    const review = mapReviewAdmin(row as ProductReviewAdmin);
+    out[review.product_id] = review;
+  }
+  return out;
 }
 
 export async function productHasReview(productId: string): Promise<boolean> {
