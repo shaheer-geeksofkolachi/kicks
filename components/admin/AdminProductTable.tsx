@@ -3,21 +3,33 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { AddReviewModal } from "@/components/admin/AddReviewModal";
 import { ProductPrice } from "@/components/ProductPrice";
 import type { Product } from "@/lib/types";
 
-export function AdminProductTable({ products }: { products: Product[] }) {
+type AdminProductTableProps = {
+  products: Product[];
+  reviewProductIds: string[];
+};
+
+export function AdminProductTable({ products, reviewProductIds }: AdminProductTableProps) {
   const router = useRouter();
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [reviewProduct, setReviewProduct] = useState<Product | null>(null);
+  const reviewSet = new Set(reviewProductIds);
 
   async function toggleSold(product: Product) {
+    const markingSold = !product.is_sold;
     setBusyId(product.id);
-    await fetch(`/api/admin/products/${product.id}/sold`, {
+    const res = await fetch(`/api/admin/products/${product.id}/sold`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ is_sold: !product.is_sold }),
+      body: JSON.stringify({ is_sold: markingSold }),
     });
     setBusyId(null);
+    if (res.ok && markingSold) {
+      setReviewProduct({ ...product, is_sold: true });
+    }
     router.refresh();
   }
 
@@ -56,7 +68,18 @@ export function AdminProductTable({ products }: { products: Product[] }) {
               </td>
               <td className="px-4 py-3">
                 {p.is_sold ? (
-                  <span className="text-[#FF8C00] font-medium">Sold</span>
+                  <div className="flex flex-col items-start gap-1">
+                    <span className="font-medium text-[#FF8C00]">Sold</span>
+                    {!reviewSet.has(p.id) && (
+                      <button
+                        type="button"
+                        onClick={() => setReviewProduct(p)}
+                        className="rounded border border-[#FF8C00]/50 bg-[#FF8C00]/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-[#FFD700] hover:bg-[#FF8C00]/20"
+                      >
+                        Add review
+                      </button>
+                    )}
+                  </div>
                 ) : (
                   <span className="text-emerald-400">Available</span>
                 )}
@@ -91,6 +114,10 @@ export function AdminProductTable({ products }: { products: Product[] }) {
           ))}
         </tbody>
       </table>
+
+      {reviewProduct && (
+        <AddReviewModal product={reviewProduct} onClose={() => setReviewProduct(null)} />
+      )}
     </div>
   );
 }

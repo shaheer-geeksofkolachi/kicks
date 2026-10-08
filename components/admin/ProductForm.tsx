@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getStoragePublicUrl, sortMedia } from "@/lib/media";
 import { uploadProductMediaClient, uploadProductThumbnailClient } from "@/lib/client-product-media-upload";
+import { AddReviewModal } from "@/components/admin/AddReviewModal";
 import { ThumbnailCropField } from "@/components/admin/ThumbnailCropField";
 import type { Product } from "@/lib/types";
 import { BrandSelect } from "@/components/BrandSelect";
@@ -15,6 +16,7 @@ import { CATALOG_SIZE_UNIT, SIZE_MAX, SIZE_MIN, sizesToSelectableValues } from "
 
 type ProductFormProps = {
   product?: Product;
+  hasReview?: boolean;
 };
 
 function buildProductJson(form: HTMLFormElement, removeIds: string[]) {
@@ -32,9 +34,11 @@ function buildProductJson(form: HTMLFormElement, removeIds: string[]) {
   };
 }
 
-export function ProductForm({ product }: ProductFormProps) {
+export function ProductForm({ product, hasReview = false }: ProductFormProps) {
   const router = useRouter();
   const isEdit = Boolean(product);
+  const [isSold, setIsSold] = useState(Boolean(product?.is_sold));
+  const [showReviewModal, setShowReviewModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [removeIds, setRemoveIds] = useState<string[]>([]);
@@ -145,15 +149,27 @@ export function ProductForm({ product }: ProductFormProps) {
         </p>
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-zinc-300">
-        <input
-          type="checkbox"
-          name="is_sold"
-          defaultChecked={product?.is_sold}
-          className="rounded border-zinc-600"
-        />
-        Mark as sold
-      </label>
+      <div className="space-y-2">
+        <label className="flex items-center gap-2 text-sm text-zinc-300">
+          <input
+            type="checkbox"
+            name="is_sold"
+            checked={isSold}
+            onChange={(e) => setIsSold(e.target.checked)}
+            className="rounded border-zinc-600"
+          />
+          Mark as sold
+        </label>
+        {isEdit && product?.is_sold && !hasReview && product && (
+          <button
+            type="button"
+            onClick={() => setShowReviewModal(true)}
+            className="rounded border border-[#FF8C00]/50 bg-[#FF8C00]/10 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-[#FFD700] hover:bg-[#FF8C00]/20"
+          >
+            Add review
+          </button>
+        )}
+      </div>
 
       {isEdit && existingMedia.length > 0 && (
         <div>
@@ -206,6 +222,13 @@ export function ProductForm({ product }: ProductFormProps) {
           image must be under 4MB.
         </p>
       </div>
+
+      {showReviewModal && product && (
+        <AddReviewModal
+          product={{ ...product, is_sold: isSold }}
+          onClose={() => setShowReviewModal(false)}
+        />
+      )}
 
       <div className="flex gap-3 pt-2">
         <button

@@ -23,6 +23,23 @@ export type Product = {
   product_media?: ProductMedia[];
 };
 
+export type ReviewKind = "text" | "image";
+
+export type ProductReview = {
+  id: string;
+  product_id: string;
+  customer_name: string | null;
+  kind: ReviewKind;
+  body_text: string | null;
+  image_storage_path: string | null;
+  created_at: string;
+};
+
+export type ProductReviewWithListing = ProductReview & {
+  product_name: string;
+  product_brand: string;
+};
+
 export type SessionData = {
   isAdmin?: boolean;
 };

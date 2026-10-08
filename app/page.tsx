@@ -1,5 +1,6 @@
 import { HomePageClient } from "@/components/home/HomePageClient";
 import { PublicShell } from "@/components/PublicShell";
+import { fetchProductReviews } from "@/lib/product-reviews";
 import { fetchProducts } from "@/lib/products";
 
 function isSupabaseConfigured() {
@@ -9,10 +10,11 @@ function isSupabaseConfigured() {
 export default async function HomePage() {
   const configError = !isSupabaseConfigured();
   const products = configError ? [] : await fetchProducts();
+  const reviews = configError ? [] : await fetchProductReviews(24);
 
   return (
     <PublicShell>
-      <HomePageClient products={products} configError={configError} />
+      <HomePageClient products={products} reviews={reviews} configError={configError} />
     </PublicShell>
   );
 }

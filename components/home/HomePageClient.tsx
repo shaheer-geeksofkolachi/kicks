@@ -5,10 +5,11 @@ import { ProductCard } from "@/components/ProductCard";
 import { ReviewsCarousel } from "@/components/ReviewsCarousel";
 import { SectionHeader } from "@/components/home/SectionHeader";
 import { homeAllPreview, homeDealsPreview, homeSoldPreview } from "@/lib/catalog-helpers";
-import type { Product } from "@/lib/types";
+import type { Product, ProductReviewWithListing } from "@/lib/types";
 
 type HomePageClientProps = {
   products: Product[];
+  reviews: ProductReviewWithListing[];
   configError?: boolean;
 };
 
@@ -19,7 +20,7 @@ const HOME_PRODUCT_GRID =
 const HOME_SOLD_GRID =
   "grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-5 [&>*]:min-w-0";
 
-export function HomePageClient({ products, configError }: HomePageClientProps) {
+export function HomePageClient({ products, reviews, configError }: HomePageClientProps) {
   const deals = useMemo(() => homeDealsPreview(products), [products]);
   const latest = useMemo(() => homeAllPreview(products), [products]);
   const sold = useMemo(() => homeSoldPreview(products), [products]);
@@ -97,7 +98,7 @@ export function HomePageClient({ products, configError }: HomePageClientProps) {
           </section>
         )}
 
-        <ReviewsCarousel />
+        <ReviewsCarousel reviews={reviews} />
       </div>
     </div>
   );

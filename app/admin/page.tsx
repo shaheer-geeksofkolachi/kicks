@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { AdminProductTable } from "@/components/admin/AdminProductTable";
+import { fetchReviewProductIds } from "@/lib/product-reviews";
 import { fetchProducts } from "@/lib/products";
 
 export default async function AdminDashboardPage() {
-  const products = await fetchProducts();
+  const [products, reviewProductIds] = await Promise.all([fetchProducts(), fetchReviewProductIds()]);
 
   return (
     <div>
@@ -16,7 +17,7 @@ export default async function AdminDashboardPage() {
           Add product
         </Link>
       </div>
-      <AdminProductTable products={products} />
+      <AdminProductTable products={products} reviewProductIds={[...reviewProductIds]} />
     </div>
   );
 }
