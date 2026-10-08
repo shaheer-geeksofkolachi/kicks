@@ -4,7 +4,8 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { getStoragePublicUrl, sortMedia } from "@/lib/media";
-import { uploadProductMediaClient } from "@/lib/client-product-media-upload";
+import { uploadProductMediaClient, uploadProductThumbnailClient } from "@/lib/client-product-media-upload";
+import { ThumbnailCropField } from "@/components/admin/ThumbnailCropField";
 import type { Product } from "@/lib/types";
 import { BrandSelect } from "@/components/BrandSelect";
 import { MediaUploadField } from "@/components/admin/MediaUploadField";
@@ -38,6 +39,7 @@ export function ProductForm({ product }: ProductFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [removeIds, setRemoveIds] = useState<string[]>([]);
   const [newMediaFiles, setNewMediaFiles] = useState<File[]>([]);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const existingMedia = product?.product_media ? sortMedia(product.product_media) : [];
   const [selectedSizes, setSelectedSizes] = useState<string[]>(() =>
     product?.sizes?.length
@@ -68,18 +70,22 @@ export function ProductForm({ product }: ProductFormProps) {
     }
 
     const productId = isEdit ? product!.id : (json.id as string);
+    const remainingExisting = existingMedia.filter((m) => !removeIds.includes(m.id)).length;
 
-    if (newMediaFiles.length) {
-      try {
-        await uploadProductMediaClient(productId, newMediaFiles);
-      } catch (uploadErr) {
-        if (!isEdit) {
-          await fetch(`/api/admin/products/${productId}`, { method: "DELETE" }).catch(() => undefined);
-        }
-        setError(uploadErr instanceof Error ? uploadErr.message : "Upload failed");
-        setSaving(false);
-        return;
+    try {
+      if (thumbnailFile) {
+        await uploadProductThumbnailClient(productId, thumbnailFile, remainingExisting > 0);
       }
+      if (newMediaFiles.length) {
+        await uploadProductMediaClient(productId, newMediaFiles);
+      }
+    } catch (uploadErr) {
+      if (!isEdit) {
+        await fetch(`/api/admin/products/${productId}`, { method: "DELETE" }).catch(() => undefined);
+      }
+      setError(uploadErr instanceof Error ? uploadErr.message : "Upload failed");
+      setSaving(false);
+      return;
     }
 
     router.push("/admin");
@@ -153,7 +159,7 @@ export function ProductForm({ product }: ProductFormProps) {
         <div>
           <p className="mb-2 text-sm text-zinc-400">Existing media (check to remove on save)</p>
           <div className="grid grid-cols-3 gap-3">
-            {existingMedia.map((m) => {
+            {existingMedia.map((m, index) => {
               const marked = removeIds.includes(m.id);
               const url = getStoragePublicUrl(m.storage_path);
               return (
@@ -170,6 +176,11 @@ export function ProductForm({ product }: ProductFormProps) {
                   ) : (
                     <Image src={url} alt="" fill className="object-cover" sizes="120px" />
                   )}
+                  {index === 0 && m.kind === "image" && !marked && (
+                    <span className="absolute top-1 left-1 rounded bg-[#FF8C00]/90 px-1.5 py-0.5 text-[9px] font-bold text-black">
+                      Cover
+                    </span>
+                  )}
                   {marked && (
                     <span className="absolute inset-0 flex items-center justify-center bg-black/60 text-xs text-red-300">
                       Remove
@@ -181,6 +192,11 @@ export function ProductForm({ product }: ProductFormProps) {
           </div>
         </div>
       )}
+
+      <div>
+        <label className="mb-1 block text-sm text-zinc-400">Thumbnail (catalog cover)</label>
+        <ThumbnailCropField file={thumbnailFile} onChange={setThumbnailFile} />
+      </div>
 
       <div>
         <label className="mb-1 block text-sm text-zinc-400">Images / videos</label>
@@ -198,7 +214,7 @@ export function ProductForm({ product }: ProductFormProps) {
           className="rounded-lg bg-[#FF8C00] px-6 py-2.5 text-sm font-semibold text-black transition hover:bg-[#FFD700] disabled:opacity-50"
         >
           {saving
-            ? newMediaFiles.length > 0
+            ? thumbnailFile || newMediaFiles.length > 0
               ? "Uploading & saving…"
               : "Saving…"
             : isEdit

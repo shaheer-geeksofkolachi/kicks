@@ -13,6 +13,8 @@ type RouteContext = { params: Promise<{ id: string }> };
 
 type PresignBody = {
   startOrder?: number;
+  /** When set, must match `files` length (e.g. `[0]` for thumbnail). */
+  sortOrders?: number[];
   files?: { name: string; contentType: string }[];
 };
 
@@ -50,17 +52,24 @@ export async function POST(request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Product not found" }, { status: 404 });
   }
 
+  const explicitOrders = body.sortOrders;
+  if (explicitOrders && explicitOrders.length !== files.length) {
+    return NextResponse.json({ error: "sortOrders must match files length" }, { status: 400 });
+  }
+
   let startOrder = 0;
-  if (body.startOrder != null && Number.isFinite(body.startOrder)) {
-    startOrder = Math.max(0, Math.floor(body.startOrder));
-  } else {
-    const { data: last } = await supabase
-      .from("product_media")
-      .select("sort_order")
-      .eq("product_id", productId)
-      .order("sort_order", { ascending: false })
-      .limit(1);
-    startOrder = last?.[0]?.sort_order != null ? last[0].sort_order + 1 : 0;
+  if (!explicitOrders) {
+    if (body.startOrder != null && Number.isFinite(body.startOrder)) {
+      startOrder = Math.max(0, Math.floor(body.startOrder));
+    } else {
+      const { data: last } = await supabase
+        .from("product_media")
+        .select("sort_order")
+        .eq("product_id", productId)
+        .order("sort_order", { ascending: false })
+        .limit(1);
+      startOrder = last?.[0]?.sort_order != null ? last[0].sort_order + 1 : 0;
+    }
   }
 
   const uploads = [];
@@ -73,11 +82,14 @@ export async function POST(request: Request, context: RouteContext) {
     const name = file.name?.trim() || `upload-${randomUUID()}`;
     const storagePath = buildProductMediaStoragePath(productId, name);
     const uploadUrl = await createPresignedProductUploadUrl(storagePath, contentType);
+    const sortOrder = explicitOrders
+      ? Math.max(0, Math.floor(explicitOrders[i]))
+      : startOrder + i;
     uploads.push({
       storagePath,
       uploadUrl,
       kind: mediaKindFromContentType(contentType),
-      sortOrder: startOrder + i,
+      sortOrder,
     });
   }
 

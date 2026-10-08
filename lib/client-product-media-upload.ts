@@ -62,13 +62,22 @@ async function uploadViaServerProxy(
   }
 }
 
-async function uploadOneFile(productId: string, file: File): Promise<void> {
+type UploadOneOptions = {
+  sortOrder?: number;
+};
+
+async function uploadOneFile(productId: string, file: File, options?: UploadOneOptions): Promise<void> {
+  const presignBody: Record<string, unknown> = {
+    files: [{ name: file.name, contentType: file.type || "application/octet-stream" }],
+  };
+  if (options?.sortOrder != null) {
+    presignBody.sortOrders = [options.sortOrder];
+  }
+
   const presignRes = await fetch(`/api/admin/products/${productId}/media/presign`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      files: [{ name: file.name, contentType: file.type || "application/octet-stream" }],
-    }),
+    body: JSON.stringify(presignBody),
   });
 
   const presignJson = await presignRes.json().catch(() => ({}));
@@ -100,4 +109,21 @@ export async function uploadProductMediaClient(productId: string, files: File[])
   for (let i = 0; i < files.length; i++) {
     await uploadOneFile(productId, files[i]);
   }
+}
+
+export async function uploadProductThumbnailClient(
+  productId: string,
+  file: File,
+  shiftExisting: boolean,
+): Promise<void> {
+  if (shiftExisting) {
+    const slotRes = await fetch(`/api/admin/products/${productId}/media/prepare-thumbnail-slot`, {
+      method: "POST",
+    });
+    const slotJson = await slotRes.json().catch(() => ({}));
+    if (!slotRes.ok) {
+      throw new Error(slotJson.error ?? "Could not prepare thumbnail slot");
+    }
+  }
+  await uploadOneFile(productId, file, { sortOrder: 0 });
 }
