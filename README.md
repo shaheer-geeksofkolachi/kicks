@@ -42,7 +42,7 @@ cp .env.example .env.local
 | `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` | IAM credentials — server only |
 | `NEXT_PUBLIC_S3_PUBLIC_URL_BASE` | Optional; override public media URL base (default: derived from bucket + region at build) |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | WhatsApp for “Order on WhatsApp” (e.g. `923001234567`) |
-| `NEXT_PUBLIC_SITE_URL` | Optional; product link in WhatsApp messages on production |
+| `NEXT_PUBLIC_SITE_URL` | Optional override for canonical URLs (sitemap, robots, WhatsApp). Defaults to `https://kicksplosion.store` on Vercel production if unset. |
 | `ADMIN_USERNAME` / `ADMIN_PASSWORD` | Admin login |
 | `SESSION_SECRET` | At least 32 random characters |
 
