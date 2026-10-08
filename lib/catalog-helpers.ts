@@ -6,7 +6,7 @@ export const HOME_ALL_LIMIT = 8;
 export const HOME_SOLD_LIMIT = 4;
 
 export function filterDiscountedProducts(products: Product[]): Product[] {
-  return products.filter((p) => getProductPricing(p).hasDiscount);
+  return products.filter((p) => !p.is_sold && getProductPricing(p).hasDiscount);
 }
 
 export function filterSoldProducts(products: Product[]): Product[] {
