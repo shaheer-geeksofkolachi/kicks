@@ -8,7 +8,7 @@ type RouteContext = { params: Promise<{ id: string }> };
 
 export async function PATCH(request: Request, context: RouteContext) {
   try {
-    await requireAdmin();
+    await requireAdmin(request);
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -61,9 +61,9 @@ export async function PATCH(request: Request, context: RouteContext) {
   return NextResponse.json({ ok: true });
 }
 
-export async function DELETE(_request: Request, context: RouteContext) {
+export async function DELETE(request: Request, context: RouteContext) {
   try {
-    await requireAdmin();
+    await requireAdmin(request);
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

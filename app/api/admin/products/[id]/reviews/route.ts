@@ -9,7 +9,7 @@ type RouteContext = { params: Promise<{ id: string }> };
 
 export async function POST(request: Request, context: RouteContext) {
   try {
-    await requireAdmin();
+    await requireAdmin(request);
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

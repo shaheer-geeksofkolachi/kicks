@@ -45,6 +45,7 @@ export function AddReviewModal({ product, onClose }: AddReviewModalProps) {
 
     const res = await fetch(`/api/admin/products/${product.id}/reviews`, {
       method: "POST",
+      credentials: "same-origin",
       body: form,
     });
     const json = await res.json().catch(() => ({}));

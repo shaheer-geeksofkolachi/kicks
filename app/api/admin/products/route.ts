@@ -3,9 +3,9 @@ import { requireAdmin } from "@/lib/auth";
 import { parseProductWriteRequest } from "@/lib/admin-product-payload";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    await requireAdmin();
+    await requireAdmin(request);
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
@@ -28,7 +28,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    await requireAdmin();
+    await requireAdmin(request);
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

@@ -1,20 +1,29 @@
-import { getIronSession } from "iron-session";
+import { getIronSession, webCookies } from "iron-session";
 import { cookies } from "next/headers";
 import { defaultSession, sessionOptions } from "@/lib/session";
 import type { SessionData } from "@/lib/types";
 
-export async function getSession(): Promise<SessionData> {
-  const session = await getIronSession<SessionData>(await cookies(), sessionOptions);
-  if (!session.isAdmin) {
-    session.isAdmin = defaultSession.isAdmin;
+async function readSession(request?: Request) {
+  if (request) {
+    return getIronSession<SessionData>(webCookies(request, new Headers()), sessionOptions);
   }
-  return session;
+  return getIronSession<SessionData>(await cookies(), sessionOptions);
 }
 
-export async function requireAdmin(): Promise<SessionData> {
-  const session = await getSession();
+export async function getSession(request?: Request): Promise<SessionData> {
+  const session = await readSession(request);
+  const data: SessionData = {
+    isAdmin: session.isAdmin === true,
+  };
+  return data;
+}
+
+export async function requireAdmin(request: Request): Promise<SessionData> {
+  const session = await getSession(request);
   if (!session.isAdmin) {
     throw new Error("Unauthorized");
   }
   return session;
 }
+
+export { defaultSession };

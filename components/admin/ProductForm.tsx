@@ -101,6 +101,7 @@ export function ProductForm({ product, hasReview = false }: ProductFormProps) {
   }
 
   return (
+    <>
     <form onSubmit={onSubmit} className="mx-auto max-w-2xl space-y-5">
       {error && (
         <p className="rounded-lg border border-red-800 bg-red-950/50 px-4 py-2 text-sm text-red-200">{error}</p>
@@ -223,13 +224,6 @@ export function ProductForm({ product, hasReview = false }: ProductFormProps) {
         </p>
       </div>
 
-      {showReviewModal && product && (
-        <AddReviewModal
-          product={{ ...product, is_sold: isSold }}
-          onClose={() => setShowReviewModal(false)}
-        />
-      )}
-
       <div className="flex gap-3 pt-2">
         <button
           type="submit"
@@ -253,6 +247,14 @@ export function ProductForm({ product, hasReview = false }: ProductFormProps) {
         </button>
       </div>
     </form>
+
+    {showReviewModal && product && (
+      <AddReviewModal
+        product={{ ...product, is_sold: isSold }}
+        onClose={() => setShowReviewModal(false)}
+      />
+    )}
+    </>
   );
 }
 

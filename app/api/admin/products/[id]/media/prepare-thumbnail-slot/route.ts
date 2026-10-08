@@ -5,9 +5,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 type RouteContext = { params: Promise<{ id: string }> };
 
 /** Shift existing media sort_order +1 so a new thumbnail can use index 0. */
-export async function POST(_request: Request, context: RouteContext) {
+export async function POST(request: Request, context: RouteContext) {
   try {
-    await requireAdmin();
+    await requireAdmin(request);
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

@@ -8,7 +8,7 @@ type RouteContext = { params: Promise<{ id: string }> };
 /** One file per request — stays under Vercel's ~4.5MB body limit (fallback when S3 CORS blocks browser PUT). */
 export async function POST(request: Request, context: RouteContext) {
   try {
-    await requireAdmin();
+    await requireAdmin(request);
   } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
