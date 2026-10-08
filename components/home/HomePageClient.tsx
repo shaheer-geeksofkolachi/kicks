@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { ReviewsCarousel } from "@/components/ReviewsCarousel";
 import { SectionHeader } from "@/components/home/SectionHeader";
-import { homeAllPreview, homeDealsPreview } from "@/lib/catalog-helpers";
+import { homeAllPreview, homeDealsPreview, homeSoldPreview } from "@/lib/catalog-helpers";
 import type { Product } from "@/lib/types";
 
 type HomePageClientProps = {
@@ -12,9 +12,17 @@ type HomePageClientProps = {
   configError?: boolean;
 };
 
+const HOME_PRODUCT_GRID =
+  "grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 [&>*]:min-w-0";
+
+/** Up to 4 sold items in a single row on large screens. */
+const HOME_SOLD_GRID =
+  "grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-5 [&>*]:min-w-0";
+
 export function HomePageClient({ products, configError }: HomePageClientProps) {
   const deals = useMemo(() => homeDealsPreview(products), [products]);
   const latest = useMemo(() => homeAllPreview(products), [products]);
+  const sold = useMemo(() => homeSoldPreview(products), [products]);
 
   return (
     <div className="relative">
@@ -40,18 +48,11 @@ export function HomePageClient({ products, configError }: HomePageClientProps) {
               viewAllLabel="View all discounted products"
             />
             <h2 id="home-deals-heading" className="sr-only">Discounted products</h2>
-            <ul
-              className="-mx-[18px] flex gap-3 overflow-x-auto px-[18px] pb-2 snap-x snap-mandatory scroll-px-[18px] sm:-mx-10 sm:gap-4 sm:px-10 sm:scroll-px-10 [scrollbar-width:thin]"
-            >
+            <div className={HOME_PRODUCT_GRID}>
               {deals.map((product) => (
-                <li
-                  key={product.id}
-                  className="flex w-[min(72vw,220px)] shrink-0 snap-start sm:w-[240px]"
-                >
-                  <ProductCard product={product} />
-                </li>
+                <ProductCard key={product.id} product={product} />
               ))}
-            </ul>
+            </div>
           </section>
         )}
 
@@ -59,7 +60,7 @@ export function HomePageClient({ products, configError }: HomePageClientProps) {
           <SectionHeader
             label="Fresh drops"
             title="All products"
-            description="Latest pairs in the shop — sold and available."
+            description="Newest listings first — sold and available."
             viewAllHref="/catalog"
             viewAllLabel="View all products"
           />
@@ -70,13 +71,31 @@ export function HomePageClient({ products, configError }: HomePageClientProps) {
               <p className="mt-2 text-sm text-[#6b5d52]">Check back soon for new kicks.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+            <div className={HOME_PRODUCT_GRID}>
               {latest.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
           )}
         </section>
+
+        {sold.length > 0 && (
+          <section className="mb-12 sm:mb-14" aria-labelledby="home-sold-heading">
+            <SectionHeader
+              label="Archive"
+              title="Sold kicks"
+              description="Recently sold pairs — gone but not forgotten."
+              viewAllHref="/catalog/sold"
+              viewAllLabel="View all"
+            />
+            <h2 id="home-sold-heading" className="sr-only">Sold products</h2>
+            <div className={HOME_SOLD_GRID}>
+              {sold.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </section>
+        )}
 
         <ReviewsCarousel />
       </div>

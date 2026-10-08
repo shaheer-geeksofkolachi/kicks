@@ -5,14 +5,18 @@ import { useSearchParams } from "next/navigation";
 import { CatalogFilters } from "@/components/CatalogFilters";
 import { LoadingSplash } from "@/components/LoadingSplash";
 import { ProductCard } from "@/components/ProductCard";
-import { filterDiscountedProducts } from "@/lib/catalog-helpers";
+import {
+  filterDiscountedProducts,
+  filterSoldProducts,
+  sortByNewest,
+} from "@/lib/catalog-helpers";
 import { SITE_DISPLAY_NAME } from "@/lib/site-url";
 import type { Product } from "@/lib/types";
 import { productIncludesSize } from "@/lib/sizes";
 
 const MIN_SPLASH_MS = 800;
 
-type CatalogMode = "all" | "deals";
+type CatalogMode = "all" | "deals" | "sold";
 
 type CatalogClientProps = {
   products: Product[];
@@ -29,10 +33,11 @@ export function CatalogClient({ products, configError, mode = "all" }: CatalogCl
   const [brand, setBrand] = useState(searchParams.get("brand") ?? "");
   const [size, setSize] = useState(searchParams.get("size") ?? "");
 
-  const catalogProducts = useMemo(
-    () => (mode === "deals" ? filterDiscountedProducts(products) : products),
-    [products, mode],
-  );
+  const catalogProducts = useMemo(() => {
+    if (mode === "deals") return filterDiscountedProducts(products);
+    if (mode === "sold") return sortByNewest(filterSoldProducts(products));
+    return products;
+  }, [products, mode]);
 
   useEffect(() => {
     const start = Date.now();
@@ -56,7 +61,7 @@ export function CatalogClient({ products, configError, mode = "all" }: CatalogCl
   }, [query, brand, size, mode]);
 
   const filtered = useMemo(() => {
-    if (mode === "deals") return catalogProducts;
+    if (mode === "deals" || mode === "sold") return catalogProducts;
     const q = query.trim().toLowerCase();
     return catalogProducts.filter((p) => {
       const matchesBrand = !brand || p.brand === brand;
@@ -83,12 +88,17 @@ export function CatalogClient({ products, configError, mode = "all" }: CatalogCl
   }
 
   const isDeals = mode === "deals";
-  const title = isDeals ? "Deals & discounts" : "Shop catalog";
+  const isSold = mode === "sold";
+  const title = isDeals ? "Deals & discounts" : isSold ? "Sold kicks" : "Shop catalog";
   const subtitle = isDeals
     ? catalogProducts.length > 0
       ? `${catalogProducts.length} ${catalogProducts.length === 1 ? "pair" : "pairs"} on sale right now.`
       : "No active discounts at the moment — check the full catalog."
-    : "Premium kicks — filter by brand, size, or search by name. Fresh pairs added regularly.";
+    : isSold
+      ? catalogProducts.length > 0
+        ? `${catalogProducts.length} ${catalogProducts.length === 1 ? "pair" : "pairs"} sold — browse what moved recently.`
+        : "Nothing marked sold yet."
+      : "Premium kicks — filter by brand, size, or search by name. Fresh pairs added regularly.";
 
   return (
     <div className="relative">
@@ -109,9 +119,9 @@ export function CatalogClient({ products, configError, mode = "all" }: CatalogCl
             <div className="mt-5 flex flex-wrap gap-2">
               <span className="rounded-full border border-[#2c2119] bg-[#1a1410]/90 px-3 py-1 text-xs font-medium text-[#c4b5a6]">
                 {catalogProducts.length} {catalogProducts.length === 1 ? "pair" : "pairs"}{" "}
-                {isDeals ? "on sale" : "listed"}
+                {isDeals ? "on sale" : isSold ? "sold" : "listed"}
               </span>
-              {availableCount < catalogProducts.length && (
+              {!isSold && availableCount < catalogProducts.length && (
                 <span className="rounded-full border border-[#2c2119] bg-[#1a1410]/90 px-3 py-1 text-xs font-medium text-[#6b5d52]">
                   {availableCount} available now
                 </span>
@@ -160,12 +170,14 @@ export function CatalogClient({ products, configError, mode = "all" }: CatalogCl
         {filtered.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-[#2c2119] bg-[#1a1410]/40 px-6 py-16 text-center">
             <p className="font-display text-xl text-[#f3ece4]">
-              {isDeals ? "No deals right now" : "No matches"}
+              {isDeals ? "No deals right now" : isSold ? "No sold kicks yet" : "No matches"}
             </p>
             <p className="mt-2 text-sm text-[#6b5d52]">
               {isDeals
                 ? "Browse the full catalog for every pair we have listed."
-                : "Try another brand, size, or search term — or clear your filters."}
+                : isSold
+                  ? "When a pair sells, it will show up here."
+                  : "Try another brand, size, or search term — or clear your filters."}
             </p>
             {hasActiveFilters && mode === "all" && (
               <button
