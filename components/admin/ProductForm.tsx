@@ -146,7 +146,7 @@ export function ProductForm({ product, hasReview = false }: ProductFormProps) {
         <label className="mb-1 block text-sm text-zinc-400">Sizes (EU)</label>
         <SizeMultiSelect name="sizes" value={selectedSizes} onChange={setSelectedSizes} required />
         <p className="mt-1 text-xs text-zinc-500">
-          Choose one or more sizes from {SIZE_MIN} to {SIZE_MAX}.
+          Choose sizes from {SIZE_MIN} to {SIZE_MAX}, including half sizes (e.g. 42.5), or add a custom size.
         </p>
       </div>
 

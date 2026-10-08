@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { SIZE_MAX, SIZE_MIN, STANDARD_SHOE_SIZES } from "@/lib/sizes";
+import { FILTER_SHOE_SIZES, SIZE_MAX, SIZE_MIN } from "@/lib/sizes";
 
 type SizeFilterDropdownProps = {
   value: string;
@@ -87,7 +87,7 @@ export function SizeFilterDropdown({ value, onChange, className = "" }: SizeFilt
           <div className="border-b border-[#2c2119] px-3 py-2.5">
             <p className="text-xs font-semibold tracking-wide text-[#a89a8c] uppercase">Shoe size</p>
             <p className="text-[11px] text-[#6b5d52]">
-              EU {SIZE_MIN} – {SIZE_MAX}
+              EU {SIZE_MIN} – {SIZE_MAX}. Picking a size also shows nearby half sizes (e.g. 42 → 41.5–42.5).
             </p>
           </div>
 
@@ -111,7 +111,7 @@ export function SizeFilterDropdown({ value, onChange, className = "" }: SizeFilt
 
           <div className="brand-dropdown-scroll max-h-[min(220px,40vh)] overflow-y-auto border-t border-[#2c2119] p-2">
             <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-3">
-              {STANDARD_SHOE_SIZES.map((size) => {
+              {FILTER_SHOE_SIZES.map((size) => {
                 const selected = value === size;
                 return (
                   <button

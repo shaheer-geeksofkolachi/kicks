@@ -1,7 +1,13 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { SIZE_MAX, SIZE_MIN, STANDARD_SHOE_SIZES } from "@/lib/sizes";
+import {
+  compareCatalogSizes,
+  normalizeCatalogSize,
+  SIZE_MAX,
+  SIZE_MIN,
+  STANDARD_SHOE_SIZES,
+} from "@/lib/sizes";
 
 type SizeMultiSelectProps = {
   name: string;
@@ -32,11 +38,14 @@ export function SizeMultiSelect({ name, value, onChange, required }: SizeMultiSe
   const listboxId = `${reactId}-sizes`;
   const rootRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
+  const [customDraft, setCustomDraft] = useState("");
+  const [customError, setCustomError] = useState<string | null>(null);
 
   const selectedSet = new Set(value);
-  const sortedSelected = [...value].sort((a, b) => Number(a) - Number(b));
+  const sortedSelected = [...value].sort(compareCatalogSizes);
 
-  const options = STANDARD_SHOE_SIZES;
+  const extraSelected = sortedSelected.filter((s) => !STANDARD_SHOE_SIZES.includes(s));
+  const options = [...STANDARD_SHOE_SIZES, ...extraSelected];
 
   useEffect(() => {
     if (!open) return;
@@ -58,8 +67,21 @@ export function SizeMultiSelect({ name, value, onChange, required }: SizeMultiSe
     if (selectedSet.has(size)) {
       onChange(value.filter((s) => s !== size));
     } else {
-      onChange([...value, size].sort((a, b) => Number(a) - Number(b)));
+      onChange([...value, size].sort(compareCatalogSizes));
     }
+  }
+
+  function addCustomSize() {
+    const normalized = normalizeCatalogSize(customDraft);
+    if (!normalized) {
+      setCustomError(`Use EU ${SIZE_MIN}–${SIZE_MAX}, whole or .5 only (e.g. 43.5).`);
+      return;
+    }
+    setCustomError(null);
+    if (!selectedSet.has(normalized)) {
+      onChange([...value, normalized].sort(compareCatalogSizes));
+    }
+    setCustomDraft("");
   }
 
   const triggerLabel =
@@ -93,7 +115,7 @@ export function SizeMultiSelect({ name, value, onChange, required }: SizeMultiSe
         >
           <div className="flex items-center justify-between border-b border-zinc-800 px-3 py-2">
             <span className="text-xs font-medium text-zinc-400">
-              EU sizes {SIZE_MIN} – {SIZE_MAX}
+              EU {SIZE_MIN} – {SIZE_MAX} (half sizes OK)
             </span>
             {sortedSelected.length > 0 && (
               <button
@@ -105,6 +127,37 @@ export function SizeMultiSelect({ name, value, onChange, required }: SizeMultiSe
               </button>
             )}
           </div>
+
+          <div className="border-b border-zinc-800 px-3 py-2">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                inputMode="decimal"
+                placeholder="Custom e.g. 42.5"
+                value={customDraft}
+                onChange={(e) => {
+                  setCustomDraft(e.target.value);
+                  setCustomError(null);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addCustomSize();
+                  }
+                }}
+                className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-[#0f0f0f] px-2.5 py-1.5 text-sm text-white outline-none ring-[#FF8C00] focus:ring-2"
+              />
+              <button
+                type="button"
+                onClick={addCustomSize}
+                className="shrink-0 rounded-lg bg-[#FF8C00] px-3 py-1.5 text-xs font-semibold text-black hover:bg-[#FFD700]"
+              >
+                Add
+              </button>
+            </div>
+            {customError && <p className="mt-1 text-xs text-red-400">{customError}</p>}
+          </div>
+
           <ul
             id={listboxId}
             role="listbox"
