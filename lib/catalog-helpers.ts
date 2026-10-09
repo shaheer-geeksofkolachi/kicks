@@ -3,7 +3,7 @@ import type { Product } from "@/lib/types";
 
 export const HOME_DEALS_LIMIT = 8;
 export const HOME_ALL_LIMIT = 8;
-export const HOME_SOLD_LIMIT = 4;
+export const HOME_SOLD_LIMIT = 10;
 
 export function filterDiscountedProducts(products: Product[]): Product[] {
   return products.filter((p) => !p.is_sold && getProductPricing(p).hasDiscount);

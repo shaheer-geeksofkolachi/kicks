@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { ProductCard } from "@/components/ProductCard";
 import { ReviewsCarousel } from "@/components/ReviewsCarousel";
+import { SoldMarquee } from "@/components/home/SoldMarquee";
 import { SectionHeader } from "@/components/home/SectionHeader";
 import { homeAllPreview, homeDealsPreview, homeSoldPreview } from "@/lib/catalog-helpers";
 import type { Product, ProductReviewWithListing } from "@/lib/types";
@@ -15,10 +16,6 @@ type HomePageClientProps = {
 
 const HOME_PRODUCT_GRID =
   "grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 [&>*]:min-w-0";
-
-/** Up to 4 sold items in a single row on large screens. */
-const HOME_SOLD_GRID =
-  "grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-5 [&>*]:min-w-0";
 
 export function HomePageClient({ products, reviews, configError }: HomePageClientProps) {
   const deals = useMemo(() => homeDealsPreview(products), [products]);
@@ -90,10 +87,8 @@ export function HomePageClient({ products, reviews, configError }: HomePageClien
               viewAllLabel="View all"
             />
             <h2 id="home-sold-heading" className="sr-only">Sold products</h2>
-            <div className={HOME_SOLD_GRID}>
-              {sold.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+            <div className="relative left-1/2 mt-2 w-screen max-w-[100vw] -translate-x-1/2 px-0">
+              <SoldMarquee products={sold} />
             </div>
           </section>
         )}
