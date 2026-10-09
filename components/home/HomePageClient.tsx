@@ -58,7 +58,7 @@ export function HomePageClient({ products, reviews, configError }: HomePageClien
           <SectionHeader
             label="Fresh drops"
             title="All products"
-            description="Newest listings first — sold and available."
+            description="Newest available pairs — browse the catalog to see sold archive too."
             viewAllHref="/catalog"
             viewAllLabel="View all products"
           />

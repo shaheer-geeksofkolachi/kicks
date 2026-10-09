@@ -13,6 +13,10 @@ export function filterSoldProducts(products: Product[]): Product[] {
   return products.filter((p) => p.is_sold);
 }
 
+export function filterAvailableProducts(products: Product[]): Product[] {
+  return products.filter((p) => !p.is_sold);
+}
+
 export function sortDealsByDiscount(products: Product[]): Product[] {
   return [...products].sort((a, b) => {
     const pa = getProductPricing(a);
@@ -38,7 +42,7 @@ export function homeDealsPreview(products: Product[]): Product[] {
 }
 
 export function homeAllPreview(products: Product[]): Product[] {
-  return sortByNewest(products).slice(0, HOME_ALL_LIMIT);
+  return sortByNewest(filterAvailableProducts(products)).slice(0, HOME_ALL_LIMIT);
 }
 
 export function homeSoldPreview(products: Product[]): Product[] {
