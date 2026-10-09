@@ -15,6 +15,11 @@ export function sortMedia(media: ProductMedia[]): ProductMedia[] {
   return [...media].sort((a, b) => a.sort_order - b.sort_order);
 }
 
+/** Product detail page: skip sort_order 0 (catalog thumbnail); cards still use primaryImageUrl. */
+export function productDetailGalleryMedia(media: ProductMedia[]): ProductMedia[] {
+  return sortMedia(media).slice(1);
+}
+
 export function primaryImageUrl(media: ProductMedia[] | undefined): string | null {
   if (!media?.length) return null;
   const sorted = sortMedia(media);

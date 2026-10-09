@@ -2,9 +2,10 @@
 
 import useEmblaCarousel from "embla-carousel-react";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ProductMediaLightbox } from "@/components/product/ProductMediaLightbox";
 import { SoldOverlay } from "@/components/SoldOverlay";
-import { getStoragePublicUrl, sortMedia } from "@/lib/media";
+import { getStoragePublicUrl, productDetailGalleryMedia } from "@/lib/media";
 import type { ProductMedia } from "@/lib/types";
 
 type ProductGalleryProps = {
@@ -15,9 +16,10 @@ type ProductGalleryProps = {
 };
 
 export function ProductGallery({ media, alt, isSold, inStock }: ProductGalleryProps) {
-  const sorted = sortMedia(media);
+  const sorted = useMemo(() => productDetailGalleryMedia(media), [media]);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: sorted.length > 1 });
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const scrollTo = useCallback((i: number) => emblaApi?.scrollTo(i), [emblaApi]);
 
@@ -26,10 +28,11 @@ export function ProductGallery({ media, alt, isSold, inStock }: ProductGalleryPr
     const onSelect = () => setSelectedIndex(emblaApi.selectedScrollSnap());
     emblaApi.on("select", onSelect);
     onSelect();
+    emblaApi.reInit();
     return () => {
       emblaApi.off("select", onSelect);
     };
-  }, [emblaApi]);
+  }, [emblaApi, sorted.length]);
 
   const showStockBadge = inStock && !isSold;
 
@@ -43,11 +46,15 @@ export function ProductGallery({ media, alt, isSold, inStock }: ProductGalleryPr
               "radial-gradient(ellipse at 60% 40%, #e8481f 0%, #a82f10 45%, #3a0f04 100%)",
           }}
         >
-          No media
+          No photos yet
           {isSold && <SoldOverlay large />}
         </div>
       </div>
     );
+  }
+
+  function openLightbox(index: number) {
+    setLightboxIndex(index);
   }
 
   return (
@@ -76,7 +83,7 @@ export function ProductGallery({ media, alt, isSold, inStock }: ProductGalleryPr
 
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex touch-pan-y">
-            {sorted.map((item) => {
+            {sorted.map((item, slideIndex) => {
               const url = getStoragePublicUrl(item.storage_path);
               return (
                 <div key={item.id} className="relative min-w-0 flex-[0_0_100%]">
@@ -90,14 +97,21 @@ export function ProductGallery({ media, alt, isSold, inStock }: ProductGalleryPr
                         preload="metadata"
                       />
                     ) : (
-                      <Image
-                        src={url}
-                        alt={alt}
-                        fill
-                        className="object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)]"
-                        sizes="(max-width: 860px) 100vw, 55vw"
-                        priority={item === sorted[0]}
-                      />
+                      <button
+                        type="button"
+                        onClick={() => openLightbox(slideIndex)}
+                        className="relative block h-full w-full cursor-zoom-in"
+                        aria-label="View full size image"
+                      >
+                        <Image
+                          src={url}
+                          alt={alt}
+                          fill
+                          className="object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.5)]"
+                          sizes="(max-width: 860px) 100vw, 55vw"
+                          priority={slideIndex === 0}
+                        />
+                      </button>
                     )}
                   </div>
                 </div>
@@ -110,7 +124,7 @@ export function ProductGallery({ media, alt, isSold, inStock }: ProductGalleryPr
       </div>
 
       {sorted.length > 1 && (
-        <div className="mt-3.5 flex gap-3">
+        <div className="mt-3.5 flex gap-3 overflow-x-auto pb-1">
           {sorted.map((item, i) => {
             const url = getStoragePublicUrl(item.storage_path);
             const active = i === selectedIndex;
@@ -119,7 +133,7 @@ export function ProductGallery({ media, alt, isSold, inStock }: ProductGalleryPr
                 key={item.id}
                 type="button"
                 onClick={() => scrollTo(i)}
-                className={`relative flex-1 aspect-square overflow-hidden rounded-[10px] border bg-gradient-to-br from-[#241a12] to-[#171009] ${
+                className={`relative aspect-square w-[72px] shrink-0 overflow-hidden rounded-[10px] border bg-gradient-to-br from-[#241a12] to-[#171009] sm:w-auto sm:flex-1 ${
                   active ? "border-[#ff7a1a]" : "border-[#2c2119]"
                 }`}
                 aria-label={`View image ${i + 1}`}
@@ -133,6 +147,16 @@ export function ProductGallery({ media, alt, isSold, inStock }: ProductGalleryPr
             );
           })}
         </div>
+      )}
+
+      {lightboxIndex != null && (
+        <ProductMediaLightbox
+          items={sorted}
+          index={lightboxIndex}
+          alt={alt}
+          onClose={() => setLightboxIndex(null)}
+          onIndexChange={setLightboxIndex}
+        />
       )}
     </div>
   );
